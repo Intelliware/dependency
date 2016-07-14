@@ -103,7 +103,6 @@ public class DirectedGraph<T> {
         Set<T> all = getAll();
         Set<T> sorted = new HashSet<T>();
 
-        int level = 0;
         while (!all.isEmpty()) {
             Set<T> layer = new HashSet<T>();
             for (T t : all) {
@@ -115,7 +114,6 @@ public class DirectedGraph<T> {
             }
 
             if (!layer.isEmpty()) {
-                level++;
                 all.removeAll(layer);
                 sorted.addAll(layer);
             } else {
