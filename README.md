@@ -1,4 +1,4 @@
-![Intelliware Logo](http://www.intelliware.com/wp-content/uploads/intelliware-logo.png "Intelliware Software Development")
+![Intelliware Logo](etc/images/intelliware_logo.png "Intelliware Software Development")
 
 # Description
 
