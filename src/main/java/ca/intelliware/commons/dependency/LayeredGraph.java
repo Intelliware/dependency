@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class LayeredGraph<T> extends DirectedGraph<T> {
 
@@ -18,10 +19,10 @@ public class LayeredGraph<T> extends DirectedGraph<T> {
 		public NodeImpl(T item) {
 			this.item = item;
 		}
-		public Set<T> getAfferentCouplings() {
+		public Set<Coupling<T>> getAfferentCouplings() {
 			return LayeredGraph.this.getAfferentCouplings(this.item);
 		}
-		public Set<T> getEfferentCouplings() {
+		public Set<Coupling<T>> getEfferentCouplings() {
 			return LayeredGraph.this.getEfferentCouplings(this.item);
 		}
 		public T getItem() {
@@ -36,16 +37,13 @@ public class LayeredGraph<T> extends DirectedGraph<T> {
 		public int getLayer() {
 			return LayeredGraph.this.getLayer(this.item);
 		}
-//		public boolean isAcyclic() {
-//			return LayeredGraph.this.isAcyclic(this.item);
-//		}
 	}
 
 	private List<Layer<Node<T>>> layers;
 	private Map<T,Integer> layerMap;
 
 
-	LayeredGraph(Set<T> nodes, Map<T,Set<T>> efferentCouplings, Map<T, Set<T>> afferentCouplings) {
+	LayeredGraph(Set<T> nodes, Map<T,Set<Coupling<T>>> efferentCouplings, Map<T, Set<Coupling<T>>> afferentCouplings) {
 		super(nodes, efferentCouplings, afferentCouplings);
 	}
 
@@ -111,7 +109,7 @@ public class LayeredGraph<T> extends DirectedGraph<T> {
         while (!all.isEmpty()) {
             Set<Node<T>> layer = new HashSet<Node<T>>();
             for (T t : all) {
-                Collection<T> dependencies = graph.getEfferentCouplings(t);
+                Collection<T> dependencies = graph.getEfferentCouplings(t).stream().map(c -> c.getT()).collect(Collectors.toSet());
                 dependencies.removeAll(sorted);
                 if (dependencies.isEmpty()) {
                     layer.add(new NodeImpl(t));

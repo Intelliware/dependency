@@ -8,27 +8,21 @@ import static org.junit.Assert.assertTrue;
 import java.io.File;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.junit.Test;
 
 public class DependencyManagerTest {
 
-    @SuppressWarnings("deprecation")
     @Test
 	public void testLevels() throws Exception {
         DependencyManager<String> manager = createDependencyManager();
 
-        List<Layer<String>> layers = manager.getLayers();
+        List<Layer<Node<String>>> layers = manager.getLayeredGraph().getLayers();
         assertNotNull("layers", layers);
         assertEquals("number of layers", 3, layers.size());
-        printLayers(layers);
+        printNodeLayers(layers);
     }
-
-	private void printLayers(List<Layer<String>> layers) {
-		for (Layer<String> layer : layers) {
-            System.out.println(layer.getLevel() + " --> " + layer.getContents());
-        }
-	}
 
     @Test
     public void testNodeLevels() throws Exception {
@@ -75,10 +69,10 @@ public class DependencyManagerTest {
 
     	Layer<Node<String>> layer = layers.get(1);
     	for (Node<String> node : layer.getContents()) {
-    		System.out.println("Afferent couplings: " + node.getName() + " --> " + node.getAfferentCouplings());
+    		System.out.println("Afferent couplings: " + node.getName() + " --> " + node.getAfferentCouplings().stream().map(c -> c.getT()).collect(Collectors.toList()));
     		assertFalse("afferent couplings", node.getAfferentCouplings().isEmpty());
 
-    		System.out.println("Efferent couplings: " + node.getName() + " --> " + node.getEfferentCouplings());
+    		System.out.println("Efferent couplings: " + node.getName() + " --> " + node.getEfferentCouplings().stream().map(c -> c.getT()).collect(Collectors.toList()));
     		assertFalse("efferent couplings", node.getEfferentCouplings().isEmpty());
 		}
     }
