@@ -42,7 +42,7 @@ public abstract class DependencyTestCase {
 		return new DirectedGraph<String>(all, efferents);
 	}
 
-	private Set<String> asSet(String... strings) {
+	Set<String> asSet(String... strings) {
 		return new HashSet<String>(Arrays.asList(strings));
 	}
 

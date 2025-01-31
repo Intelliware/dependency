@@ -14,13 +14,12 @@ public interface Node<T> {
 	 * thrown and caught exceptions. In short, all types referred to anywhere
 	 * within the source of the measured class.
 	 */
-	public Set<T> getEfferentCouplings();
+	public Set<Coupling<T>> getEfferentCouplings();
 
 	/**
 	 * <p>The number of other items that depend upon the current item.
 	 */
-	public Set<T> getAfferentCouplings();
+	public Set<Coupling<T>> getAfferentCouplings();
 
 	public int getLayer();
-//	public boolean isAcyclic();
 }

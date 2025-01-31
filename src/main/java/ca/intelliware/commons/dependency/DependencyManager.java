@@ -1,19 +1,25 @@
 package ca.intelliware.commons.dependency;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+
 
 public class DependencyManager<T> {
 
 	private Set<T> all = Collections.synchronizedSet(new HashSet<T>());
-    private Map<T,Set<T>> efferents = Collections.synchronizedMap(new HashMap<T,Set<T>>());
-    private Map<T,Set<T>> afferents = Collections.synchronizedMap(new HashMap<T,Set<T>>());
+	/**
+	 * Efferent couplings represent all the types that a particular type (the key of the Map) knows about.
+	 */
+    private Map<T,Set<Coupling<T>>> efferents = Collections.synchronizedMap(new HashMap<>());
+	/**
+	 * Afferent couplings represent all the types that know about a particular type (the key of the Map).
+	 */
+    private Map<T,Set<Coupling<T>>> afferents = Collections.synchronizedMap(new HashMap<>());
 
     private LayeredGraph<T> layeredGraph;
 
@@ -23,66 +29,50 @@ public class DependencyManager<T> {
     		this.all.add(t);
     	}
     }
+    
     public void add(T dependant, T dependsOn) {
-    	add(dependant);
-    	add(dependsOn);
-    	add(this.afferents, dependsOn, dependant);
-    	add(this.efferents, dependant, dependsOn);
+    	add(dependant, dependsOn, 1);
     }
 
-    private void add(Map<T, Set<T>> map, T key, T value) {
+    public void add(T dependant, T dependsOn, int weight) {
+    	add(dependant);
+    	add(dependsOn);
+    	add(this.afferents, dependsOn, dependant, weight);
+    	add(this.efferents, dependant, dependsOn, weight);
+    }
+
+    private void add(Map<T, Set<Coupling<T>>> map, T key, T value, int weight) {
     	this.layeredGraph = null;
     	if (key != null) {
 			if (!map.containsKey(key)) {
-				map.put(key, new HashSet<T>());
+				map.put(key, new HashSet<>());
 			}
 
 			if (value != null) {
-				map.get(key).add(value);
+				List<Coupling<T>> couplings = map.get(key)
+						.stream()
+						.filter(c -> c.getT().equals(value))
+						.collect(Collectors.toList());
+				if (couplings.isEmpty()) {
+					map.get(key).add(new Coupling<>(value, weight));
+				} else {
+					couplings.get(0).setWeight(couplings.get(0).getWeight() + weight);
+				}
 			}
     	}
 	}
+    
 	public int getNodeCount() {
     	return getAll().size();
     }
 
     public Set<T> getDirectDependencies(T dependent) {
-    	HashSet<T> result = new HashSet<T>();
-    	Set<T> set = this.efferents.get(dependent);
+    	Set<T> result = new HashSet<T>();
+    	Set<Coupling<T>> set = this.efferents.get(dependent);
     	if (set != null) {
-    		result.addAll(set);
+    		set.forEach(c -> result.add(c.getT()));
     	}
 		return result;
-    }
-
-    @Deprecated
-    public List<Layer<T>> getLayers() {
-        List<Layer<T>> list = new ArrayList<Layer<T>>();
-        Set<T> all = getAll();
-        Set<T> sorted = new HashSet<T>();
-
-        int level = 0;
-        while (!all.isEmpty()) {
-            Set<T> layer = new HashSet<T>();
-            for (T t : all) {
-                Collection<T> dependencies = getDirectDependencies(t);
-                dependencies.removeAll(sorted);
-                if (dependencies.isEmpty()) {
-                    layer.add(t);
-                }
-            }
-
-            if (!layer.isEmpty()) {
-                list.add(new Layer<T>(level, layer));
-                level++;
-                all.removeAll(layer);
-                sorted.addAll(layer);
-            } else {
-                throw new IllegalStateException("Looks like a cyclic dependency!");
-            }
-        }
-
-        return list;
     }
 
 	private synchronized LayeredGraph<T> initializeLayers() {

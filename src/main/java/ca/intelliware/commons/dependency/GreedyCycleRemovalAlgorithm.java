@@ -119,13 +119,13 @@ class GreedyCycleRemovalAlgorithm<T> {
 			Map<T, Set<T>> acyclicEfferents = new HashMap<T, Set<T>>();
 			VertexSequence sequence = getVertexSequence();
 			for (T key : sequence.getElements()) {
-				for (T efferent : this.graph.getEfferentCouplings(key)) {
-					if (key.equals(efferent)) {
+				for (Coupling<T> efferent : this.graph.getEfferentCouplings(key)) {
+					if (key.equals(efferent.getT())) {
 						// skip it
-					} else if (sequence.isLeftward(key, efferent)) {
-						put(acyclicEfferents, efferent, key);
+					} else if (sequence.isLeftward(key, efferent.getT())) {
+						put(acyclicEfferents, efferent.getT(), key);
 					} else {
-						put(acyclicEfferents, key, efferent);
+						put(acyclicEfferents, key, efferent.getT());
 					}
 				}
 			}

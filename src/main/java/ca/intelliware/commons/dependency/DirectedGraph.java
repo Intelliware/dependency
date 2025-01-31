@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * <p>A directed graph.
@@ -55,37 +56,48 @@ public class DirectedGraph<T> {
 		}
 	}
 
-	protected final Map<T, Set<T>> efferentCouplings;
-	protected final Map<T, Set<T>> afferentCouplings;
+	protected final Map<T, Set<Coupling<T>>> efferentCouplings;
+	protected final Map<T, Set<Coupling<T>>> afferentCouplings;
 	private final HashSet<T> nodes;
 	private Boolean isAcyclic;
 
-	DirectedGraph(Set<T> nodes, Map<T,Set<T>> efferentCouplings, Map<T, Set<T>> afferentCouplings) {
+	DirectedGraph(Set<T> nodes, Map<T,Set<Coupling<T>>> efferentCouplings, Map<T, Set<Coupling<T>>> afferentCouplings) {
 		this.nodes = new HashSet<T>(nodes);
 		this.efferentCouplings = createHashMap(efferentCouplings);
 		this.afferentCouplings = createHashMap(afferentCouplings);
 	}
 
-	private Map<T, Set<T>> createHashMap(Map<T, Set<T>> map) {
-		Map<T,Set<T>> result = new HashMap<T, Set<T>>();
-		for (T key : map.keySet()) {
-			result.put(key, new HashSet<T>(map.get(key)));
+	private Map<T, Set<Coupling<T>>> createHashMap(Map<T, Set<Coupling<T>>> map) {
+		Map<T,Set<Coupling<T>>> result = new HashMap<>();
+		for (Map.Entry<T, Set<Coupling<T>>> entry : map.entrySet()) {
+			result.put(entry.getKey(), new HashSet<>(entry.getValue()));
 		}
 		return result;
 	}
 
 	DirectedGraph(Set<T> nodes, Map<T,Set<T>> efferentCouplings) {
-		this(nodes, efferentCouplings, determineAfferents(efferentCouplings));
+		this(nodes, toCouplings(efferentCouplings), determineAfferents(efferentCouplings));
 	}
 
-	private static <T> Map<T, Set<T>> determineAfferents(Map<T, Set<T>> efferentCouplings) {
-		Map<T,Set<T>> afferents = new HashMap<T, Set<T>>();
+	private static <T> Map<T, Set<Coupling<T>>> toCouplings(Map<T, Set<T>> efferentCouplings) {
+		Map<T,Set<Coupling<T>>> result = new HashMap<>();
+		for (Map.Entry<T, Set<T>> entry : efferentCouplings.entrySet()) {
+			result.put(entry.getKey(), entry.getValue()
+					.stream()
+					.map(t -> new Coupling<T>(t))
+					.collect(Collectors.toSet()));
+		}
+		return result;
+	}
+
+	private static <T> Map<T, Set<Coupling<T>>> determineAfferents(Map<T, Set<T>> efferentCouplings) {
+		Map<T,Set<Coupling<T>>> afferents = new HashMap<>();
 		for (T key : efferentCouplings.keySet()) {
 			for (T value : efferentCouplings.get(key)) {
 				if (!afferents.containsKey(value)) {
-					afferents.put(value, new HashSet<T>());
+					afferents.put(value, new HashSet<>());
 				}
-				afferents.get(value).add(key);
+				afferents.get(value).add(new Coupling<T>(key, 1));
 			}
 		}
 		return afferents;
@@ -106,7 +118,7 @@ public class DirectedGraph<T> {
         while (!all.isEmpty()) {
             Set<T> layer = new HashSet<T>();
             for (T t : all) {
-                Collection<T> dependencies = getEfferentCouplings(t);
+                Collection<T> dependencies = getEfferentCouplings(t).stream().map(c -> c.getT()).collect(Collectors.toSet());
                 dependencies.removeAll(sorted);
                 if (dependencies.isEmpty()) {
                     layer.add(t);
@@ -162,18 +174,18 @@ public class DirectedGraph<T> {
 		return new HashSet<T>(this.nodes);
 	}
 
-	Set<T> getEfferentCouplings(T t) {
-		return this.efferentCouplings.containsKey(t) ? new HashSet<T>(this.efferentCouplings.get(t)) : new HashSet<T>();
+	Set<Coupling<T>> getEfferentCouplings(T t) {
+		return this.efferentCouplings.containsKey(t) ? new HashSet<Coupling<T>>(this.efferentCouplings.get(t)) : new HashSet<Coupling<T>>();
 	}
-	Set<T> getAfferentCouplings(T t) {
-		return this.afferentCouplings.containsKey(t) ? new HashSet<T>(this.afferentCouplings.get(t)) : new HashSet<T>();
+	Set<Coupling<T>> getAfferentCouplings(T t) {
+		return this.afferentCouplings.containsKey(t) ? new HashSet<Coupling<T>>(this.afferentCouplings.get(t)) : new HashSet<Coupling<T>>();
 	}
 
-	Map<T, Set<T>> getAfferentCouplings() {
+	Map<T, Set<Coupling<T>>> getAfferentCouplings() {
 		return createHashMap(this.afferentCouplings);
 	}
 
-	Map<T, Set<T>> getEfferentCouplings() {
+	Map<T, Set<Coupling<T>>> getEfferentCouplings() {
 		return createHashMap(this.efferentCouplings);
 	}
 }
