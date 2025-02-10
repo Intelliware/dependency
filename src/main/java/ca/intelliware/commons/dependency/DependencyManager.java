@@ -51,7 +51,7 @@ public class DependencyManager<T> {
 			if (value != null) {
 				List<Coupling<T>> couplings = map.get(key)
 						.stream()
-						.filter(c -> c.getT().equals(value))
+						.filter(c -> c.getItem().equals(value))
 						.collect(Collectors.toList());
 				if (couplings.isEmpty()) {
 					map.get(key).add(new Coupling<>(value, weight));
@@ -70,7 +70,7 @@ public class DependencyManager<T> {
     	Set<T> result = new HashSet<T>();
     	Set<Coupling<T>> set = this.efferents.get(dependent);
     	if (set != null) {
-    		set.forEach(c -> result.add(c.getT()));
+    		set.forEach(c -> result.add(c.getItem()));
     	}
 		return result;
     }

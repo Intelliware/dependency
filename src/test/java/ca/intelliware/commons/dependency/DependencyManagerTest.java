@@ -69,10 +69,10 @@ public class DependencyManagerTest {
 
     	Layer<Node<String>> layer = layers.get(1);
     	for (Node<String> node : layer.getContents()) {
-    		System.out.println("Afferent couplings: " + node.getName() + " --> " + node.getAfferentCouplings().stream().map(c -> c.getT()).collect(Collectors.toList()));
+    		System.out.println("Afferent couplings: " + node.getName() + " --> " + node.getAfferentCouplings().stream().map(c -> c.getItem()).collect(Collectors.toList()));
     		assertFalse("afferent couplings", node.getAfferentCouplings().isEmpty());
 
-    		System.out.println("Efferent couplings: " + node.getName() + " --> " + node.getEfferentCouplings().stream().map(c -> c.getT()).collect(Collectors.toList()));
+    		System.out.println("Efferent couplings: " + node.getName() + " --> " + node.getEfferentCouplings().stream().map(c -> c.getItem()).collect(Collectors.toList()));
     		assertFalse("efferent couplings", node.getEfferentCouplings().isEmpty());
 		}
     }

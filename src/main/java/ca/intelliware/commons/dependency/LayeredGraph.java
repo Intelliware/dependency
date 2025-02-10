@@ -109,7 +109,7 @@ public class LayeredGraph<T> extends DirectedGraph<T> {
         while (!all.isEmpty()) {
             Set<Node<T>> layer = new HashSet<Node<T>>();
             for (T t : all) {
-                Collection<T> dependencies = graph.getEfferentCouplings(t).stream().map(c -> c.getT()).collect(Collectors.toSet());
+                Collection<T> dependencies = graph.getEfferentCouplings(t).stream().map(c -> c.getItem()).collect(Collectors.toSet());
                 dependencies.removeAll(sorted);
                 if (dependencies.isEmpty()) {
                     layer.add(new NodeImpl(t));
