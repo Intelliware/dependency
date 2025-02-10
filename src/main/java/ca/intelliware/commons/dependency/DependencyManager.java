@@ -66,11 +66,11 @@ public class DependencyManager<T> {
     	return getAll().size();
     }
 
-    public Set<T> getDirectDependencies(T dependent) {
-    	Set<T> result = new HashSet<T>();
+    public Set<Coupling<T>> getDirectDependencies(T dependent) {
+    	Set<Coupling<T>> result = new HashSet<>();
     	Set<Coupling<T>> set = this.efferents.get(dependent);
     	if (set != null) {
-    		set.forEach(c -> result.add(c.getItem()));
+    		set.forEach(c -> result.add(c));
     	}
 		return result;
     }
