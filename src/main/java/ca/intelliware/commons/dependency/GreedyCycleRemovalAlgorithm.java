@@ -120,12 +120,12 @@ class GreedyCycleRemovalAlgorithm<T> {
 			VertexSequence sequence = getVertexSequence();
 			for (T key : sequence.getElements()) {
 				for (Coupling<T> efferent : this.graph.getEfferentCouplings(key)) {
-					if (key.equals(efferent.getT())) {
+					if (key.equals(efferent.getItem())) {
 						// skip it
-					} else if (sequence.isLeftward(key, efferent.getT())) {
-						put(acyclicEfferents, efferent.getT(), key);
+					} else if (sequence.isLeftward(key, efferent.getItem())) {
+						put(acyclicEfferents, efferent.getItem(), key);
 					} else {
-						put(acyclicEfferents, key, efferent.getT());
+						put(acyclicEfferents, key, efferent.getItem());
 					}
 				}
 			}

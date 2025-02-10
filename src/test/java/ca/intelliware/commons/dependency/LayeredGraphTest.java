@@ -56,7 +56,7 @@ public class LayeredGraphTest extends DependencyTestCase {
 			for (Node<String> node : layer.getContents()) {
 				for (Coupling<String> coupling : node.getEfferentCouplings()) {				
 					System.out.println("Layer " + layer.getLevel() + " -> " + node.getItem() 
-						+ " depends upon " + coupling.getT() 
+						+ " depends upon " + coupling.getItem() 
 						+ " with weight " + coupling.getWeight());
 				}
 				if (node.getEfferentCouplings().isEmpty()) {

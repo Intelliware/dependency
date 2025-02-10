@@ -118,7 +118,7 @@ public class DirectedGraph<T> {
         while (!all.isEmpty()) {
             Set<T> layer = new HashSet<T>();
             for (T t : all) {
-                Collection<T> dependencies = getEfferentCouplings(t).stream().map(c -> c.getT()).collect(Collectors.toSet());
+                Collection<T> dependencies = getEfferentCouplings(t).stream().map(c -> c.getItem()).collect(Collectors.toSet());
                 dependencies.removeAll(sorted);
                 if (dependencies.isEmpty()) {
                     layer.add(t);

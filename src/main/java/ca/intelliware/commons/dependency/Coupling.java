@@ -21,7 +21,7 @@ public class Coupling<T> {
 		this.weight = weight;
 	}
 
-	public T getT() {
+	public T getItem() {
 		return t;
 	}
 }
