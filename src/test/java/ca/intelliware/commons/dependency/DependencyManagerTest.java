@@ -106,7 +106,7 @@ public class DependencyManagerTest {
     public void testDirectDependencies() throws Exception {
         DependencyManager<String> manager = createDependencyManager();
 
-        Collection<String> directDependencies = manager.getDirectDependencies("jmock");
+        Collection<Coupling<String>> directDependencies = manager.getDirectDependencies("jmock");
         assertEquals("size", 2, directDependencies.size());
 
     }
