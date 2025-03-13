@@ -160,8 +160,7 @@ class CountCrossingAlgorithm {
 		Collection<? extends Ordered> ordered = neighbourly.getNeighboursInLayer(level);
 		SortedSet<Edge> set = new TreeSet<Edge>();
 		for (Ordered o : ordered) {
-			int weight =  (o instanceof Weighted) ? ((Weighted) o).getWeight() : 1;
-			set.add(new Edge(o.getOrdinal(), weight, gapRemover));
+			set.add(new Edge(o.getOrdinal(), 1, gapRemover));
 			gapRemover.add(o.getOrdinal());
 		}
 		return set;

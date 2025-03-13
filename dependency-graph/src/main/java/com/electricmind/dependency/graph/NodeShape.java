@@ -102,10 +102,20 @@ public class NodeShape<T> {
 	}
 
 	protected void drawStringSvg(String text, double x, double y, OutputStream output) throws IOException {
-		String fontName = this.font.getFamily();
-		float size = this.font.getSize2D();
+		drawStringSvg(text, x, y, this.font, output);
+	}
+
+	protected void drawStringSvg(String text, double x, double y, Font font, OutputStream output) throws IOException {
+		String fontName = font.getFamily();
+		float size = font.getSize2D();
 		
-		output.write(("<text x=\"" + x + "\" y=\"" + y + "\" text-anchor=\"middle\" font-size=\"" + size +"\" font-family=\"" + fontName + "\">" 
+		String fontWeight = "";
+		if (font.getStyle() == Font.BOLD) {
+			fontWeight = " font-weight=\"bold\" ";
+		}
+		
+		output.write(("<text x=\"" + x + "\" y=\"" + y + "\" text-anchor=\"middle\" font-size=\"" + size +"\" font-family=\"" + fontName + "\" " 
+				+ fontWeight + ">" 
 				+ StringEscapeUtils.escapeXml(text) 
 				+ "</text>").getBytes("UTF-8"));
 	}

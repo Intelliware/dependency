@@ -7,7 +7,6 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
-import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.io.IOException;
@@ -26,6 +25,8 @@ public class PackageShape<T> extends NodeShape<T> {
 	
 	private PackageName prefix;
 	private float fontHeight;
+	private Font secondaryFont;
+	private float secondaryFontHeight;
 
 	public PackageShape() {
 		setDimension(new Dimension(150, 75));
@@ -74,15 +75,20 @@ public class PackageShape<T> extends NodeShape<T> {
 		
 		PackageName packageName = new PackageName(node.getName());
 		if (StringUtils.isBlank(this.prefix.toString()) || this.prefix.equals(packageName)) {
-			this.drawStringSvg(node.getName(), getWidth() / 2.0 + upperLeft.getX(), getHeight() / 2.0 + upperLeft.getY(), outputStream);
+			this.drawStringSvg(node.getName(), 
+					getWidth() / 2.0 + upperLeft.getX(), 
+					getHeight() / 2.0 + this.secondaryFontHeight / 2.0  + upperLeft.getY(), 
+					this.secondaryFont, outputStream);
 		} else {
 			this.drawStringSvg(this.prefix.toString() + ".", 
 					getWidth() / 2.0 + upperLeft.getX(), 
-					getHeight() / 2.0 - this.fontHeight / 2.0 + upperLeft.getY() + getPackageImage().getIconHeight() / 2.0, 
+					getHeight() / 2.0 - this.secondaryFontHeight / 2.0 + upperLeft.getY() + getPackageImage().getIconHeight() / 2.0, 
+					this.secondaryFont,
 					outputStream);
 			this.drawStringSvg(packageName.removePrefix(this.prefix).toString(), 
 					getWidth() / 2.0 + upperLeft.getX(), 
-					getHeight() / 2.0 + this.fontHeight / 2.0 + upperLeft.getY() + getPackageImage().getIconHeight() / 2.0, 
+					getHeight() / 2.0 + this.secondaryFontHeight + upperLeft.getY() + getPackageImage().getIconHeight() / 2.0, 
+					getFont(),
 					outputStream);
 		}
 	}
@@ -122,14 +128,18 @@ public class PackageShape<T> extends NodeShape<T> {
 	
 	public void initialize(Graphics2D graphics, List<Node<T>> nodes) {
 		this.prefix = getPackageNamePrefix(nodes);
-		
+		initializeMainFont(graphics, nodes);
+		initializeSecondaryFont(graphics);
+	}
+
+	private void initializeMainFont(Graphics2D graphics, List<Node<T>> nodes) {
 		float size = 10;
-		Font base = new Font("Helvetica", Font.PLAIN, 10);
+		Font base = new Font("Helvetica", Font.BOLD, 10);
 		while (size >= 5.0f) {
 			Font font = base.deriveFont(size);
 			FontMetrics metrics = graphics.getFontMetrics(font);
-			Rectangle2D bounds = metrics.getStringBounds(this.prefix.toString() + ".", graphics);
-			double width = bounds.getWidth();
+			Rectangle2D bounds;
+			double width = 0;
 			for (Node<T> node : nodes) {
 				PackageName name = new PackageName(node.getName());
 				bounds = metrics.getStringBounds(name.removePrefix(this.prefix).toString(), graphics);
@@ -138,6 +148,25 @@ public class PackageShape<T> extends NodeShape<T> {
 			
 			setFont(font);
 			this.fontHeight = metrics.getHeight();
+			if (width < getTextAreaWidth()) {
+				break;
+			} else {
+				size -= 0.25;
+			}
+		}
+	}
+	
+	private void initializeSecondaryFont(Graphics2D graphics) {
+		float size = 10;
+		Font base = new Font("Helvetica", Font.PLAIN, 10);
+		while (size >= 5.0f) {
+			Font font = base.deriveFont(size);
+			FontMetrics metrics = graphics.getFontMetrics(font);
+			Rectangle2D bounds = metrics.getStringBounds(this.prefix.toString() + ".", graphics);
+			
+			this.secondaryFont = font;
+			this.secondaryFontHeight = metrics.getHeight();
+			double width = bounds.getWidth();
 			if (width < getTextAreaWidth()) {
 				break;
 			} else {
@@ -156,5 +185,9 @@ public class PackageShape<T> extends NodeShape<T> {
 			}
 		}
 		return prefix;
+	}
+	
+	protected double getTextAreaWidth() {
+		return getWidth() - 16;
 	}
 }
