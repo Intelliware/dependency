@@ -1,4 +1,4 @@
-![Electric Mind Logo](./electricMindLogo.png "Electric Mind (formerly Intelliware)")
+![Electric Mind Logo](./etc/images/electricMindLogo.png "Electric Mind (formerly Intelliware)")
 
 # Description
 
