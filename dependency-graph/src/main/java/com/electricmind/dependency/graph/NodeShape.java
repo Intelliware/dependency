@@ -11,6 +11,7 @@ import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
@@ -26,12 +27,27 @@ import com.electricmind.dependency.Node;
  */
 public class NodeShape<T> {
 
-	private Dimension dimension = new Dimension(100, 50);
+	private Dimension dimension;
 	private Plot plot;
 	private Font font;
+	protected TextLabel label;
+
+	public NodeShape() {
+		this(new Dimension(100, 50));
+	}
+	
+	protected NodeShape(Dimension dimension) {
+		this.dimension = dimension;
+		this.label = initializeLabel();
+	}
 
 	public Dimension getDimension() {
 		return this.dimension;
+	}
+
+	protected TextLabel initializeLabel() {
+		Rectangle2D rectangle = new Rectangle2D.Double(getWidth() * 0.1, getHeight() * 0.1, getTextAreaWidth(), getHeight() * 0.8);
+		return new TextLabel(rectangle);
 	}
 
 	public void setDimension(Dimension dimension) {
@@ -158,6 +174,9 @@ public class NodeShape<T> {
 		AffineTransform transform = new AffineTransform();
 		transform.scale(1.00 / ratio, 1.0 / ratio);
 		this.font = font.deriveFont(transform);
+		
+		List<String> text = nodes.stream().map(n -> n.getName()).collect(Collectors.toList());
+		this.label.initialize(graphics, new TextLabelOption(Font.PLAIN, text));
 	}
 
 	protected double getTextAreaWidth() {

@@ -90,7 +90,7 @@ class ArrowShape {
 		output.write(("<marker style=\"overflow:visible\" id=\"ArrowWide-" + path.hashCode() 
 			+ "\" refX=\"0\" refY=\"0\" orient=\"auto-start-reverse\" markerWidth=\"1\" markerHeight=\"1\" viewBox=\"0 0 1 1\" "
 			+ "preserveAspectRatio=\"xMidYMid\">").getBytes("UTF-8"));
-		output.write(("<path style=\"fill:none;stroke:context-stroke;stroke-width:" + arrow.getWidth() 
+		output.write(("<path style=\"fill:none;stroke:context-stroke;stroke-width:1" 
 			+ ";stroke-linecap:butt\" d=\"M 5,-5 0,0 5,5\" transform=\"rotate(180,0.125,0)\" />").getBytes("UTF-8"));
 		output.write(("</marker>").getBytes("UTF-8"));
 		output.write(("<path d=\"" + path +  "\" stroke-width=\"" + arrow.getWidth() + "\" stroke=\"" 

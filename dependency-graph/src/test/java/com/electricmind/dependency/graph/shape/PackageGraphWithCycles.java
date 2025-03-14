@@ -11,7 +11,6 @@ import org.apache.commons.lang.SystemUtils;
 
 import com.electricmind.dependency.DependencyManager;
 import com.electricmind.dependency.graph.Grapher;
-import com.electricmind.dependency.graph.shape.PackageShape;
 
 public class PackageGraphWithCycles {
 	

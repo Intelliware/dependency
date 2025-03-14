@@ -65,6 +65,7 @@ public class JDependProcessor {
 		File file = new File("./target/" + this.type + "PackageGraph.svg");
 		try (OutputStream output = new FileOutputStream(file)) {
 			Grapher<String> grapher = new Grapher<>(dependencyManager);
+			grapher.getPlot().setUseWeights(false);
 			grapher.setStripeColour(new Color(0xE9, 0xD9, 0xFE));
 			grapher.setShape(new PackageShape<String>());
 			Dimension d = grapher.createSvg(output);

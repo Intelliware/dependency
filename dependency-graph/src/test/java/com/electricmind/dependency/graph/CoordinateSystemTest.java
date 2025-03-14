@@ -8,10 +8,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import com.electricmind.dependency.graph.CoordinateSystem;
-import com.electricmind.dependency.graph.NodeShape;
-import com.electricmind.dependency.graph.Plottable;
-
 @RunWith(MockitoJUnitRunner.class)
 public class CoordinateSystemTest {
 	

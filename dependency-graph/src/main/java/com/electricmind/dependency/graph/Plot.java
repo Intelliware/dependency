@@ -28,6 +28,7 @@ public class Plot {
 	private Color arrowColor = Color.DARK_GRAY;
 	private Color reverseArrowColor = DARK_RED;
 	private Stroke arrowStroke = DASHED_STROKE;
+	private boolean useWeights = true;
 
 	public Color getShadowColor() {
 		return this.shadowColor;
@@ -91,5 +92,13 @@ public class Plot {
 
 	public void setReverseArrowColor(Color reverseArrowColor) {
 		this.reverseArrowColor = reverseArrowColor;
+	}
+
+	public boolean isUseWeights() {
+		return this.useWeights;
+	}
+
+	public void setUseWeights(boolean useWeights) {
+		this.useWeights = useWeights;
 	}
 }

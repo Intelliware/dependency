@@ -6,10 +6,6 @@ import static org.junit.Assert.assertNotNull;
 import org.junit.Test;
 
 import com.electricmind.dependency.DependencyManager;
-import com.electricmind.dependency.graph.Graph;
-import com.electricmind.dependency.graph.GraphLayer;
-import com.electricmind.dependency.graph.SugiyamaAlgorithm;
-import com.electricmind.dependency.graph.Vertex;
 
 public class SugiyamaAlgorithmTest {
 

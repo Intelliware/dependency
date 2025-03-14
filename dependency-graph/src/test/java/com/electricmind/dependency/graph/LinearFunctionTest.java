@@ -6,8 +6,6 @@ import java.awt.geom.Point2D;
 
 import org.junit.Test;
 
-import com.electricmind.dependency.graph.LinearFunction;
-
 public class LinearFunctionTest {
 
 	private static final double THIRTY_DEGREES_IN_RADIANS = Math.PI / 6.0;

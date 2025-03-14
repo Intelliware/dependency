@@ -11,6 +11,8 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.swing.ImageIcon;
@@ -20,32 +22,38 @@ import org.apache.commons.lang.StringUtils;
 import com.electricmind.dependency.Node;
 import com.electricmind.dependency.graph.HtmlColor;
 import com.electricmind.dependency.graph.NodeShape;
+import com.electricmind.dependency.graph.TextLabel;
+import com.electricmind.dependency.graph.TextLabelOption;
 
 public class PackageShape<T> extends NodeShape<T> {
 	
+	private static final double TAB_HEIGHT = 20.0;
+	private static final double PADDING = 8.0;
+	
 	private PackageName prefix;
-	private float fontHeight;
-	private Font secondaryFont;
-	private float secondaryFontHeight;
 
 	public PackageShape() {
-		setDimension(new Dimension(150, 75));
+		super(new Dimension(150, 75));
+	}
+
+	protected TextLabel initializeLabel() {
+		Rectangle2D rectangle = new Rectangle2D.Double(PADDING, PADDING + TAB_HEIGHT, getWidth() - 2 * PADDING, getHeight() - 2 * PADDING);
+		return new TextLabel(rectangle);
 	}
 
 	@Override
 	protected void draw(Graphics2D graphics, Node<T> node) {
 		graphics.setPaint(getPlot().getShadowColor());
-		double height = 20.0;
-		graphics.fill(new Rectangle2D.Double(3, 3, getWidth() / 3.0, height));
-		graphics.fill(new Rectangle2D.Double(3, 3 + height, getWidth(), getHeight() - height));
+		graphics.fill(new Rectangle2D.Double(3, 3, getWidth() / 3.0, TAB_HEIGHT));
+		graphics.fill(new Rectangle2D.Double(3, 3 + TAB_HEIGHT, getWidth(), getHeight() - TAB_HEIGHT));
 		
 		graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		graphics.setPaint(getPlot().getShapeFillColor());
-		graphics.fill(new Rectangle2D.Double(0, 0, getWidth() / 3.0, height));
-		graphics.fill(new Rectangle2D.Double(0, height, getWidth(), getHeight() - height));
+		graphics.fill(new Rectangle2D.Double(0, 0, getWidth() / 3.0, TAB_HEIGHT));
+		graphics.fill(new Rectangle2D.Double(0, TAB_HEIGHT, getWidth(), getHeight() - TAB_HEIGHT));
 		graphics.setColor(getPlot().getShapeLineColor());
-		graphics.draw(new Rectangle2D.Double(0, 0, getWidth() / 3.0, height));
-		graphics.draw(new Rectangle2D.Double(0, height, getWidth(), getHeight() - height));
+		graphics.draw(new Rectangle2D.Double(0, 0, getWidth() / 3.0, TAB_HEIGHT));
+		graphics.draw(new Rectangle2D.Double(0, TAB_HEIGHT, getWidth(), getHeight() - TAB_HEIGHT));
 		
 		graphics.drawImage(getPackageImage().getImage(), (int) 2, 2, null);
 		drawNodeName(graphics, node);
@@ -57,38 +65,36 @@ public class PackageShape<T> extends NodeShape<T> {
 		String shapeFill = HtmlColor.asHtml(getPlot().getShapeFillColor());
 		String shapeStroke = HtmlColor.asHtml(getPlot().getShapeLineColor());
 
-		double height = 20.0;
 		outputStream.write(("<rect x=\"" + (upperLeft.getX() + 3) + "\" y=\"" + (upperLeft.getY() + 3) + "\" height=\"" 
-				+ height + "\" width=\"" + (getDimension().getWidth() / 3.0) + "\" fill=\"" + shadowFill + "\" />").getBytes("UTF-8"));
-		outputStream.write(("<rect x=\"" + (upperLeft.getX() + 3) + "\" y=\"" + (upperLeft.getY() + 3  + height) + "\" height=\"" 
-				+ (getDimension().getHeight() - height) + "\" width=\"" + getDimension().getWidth() + "\" fill=\"" 
+				+ TAB_HEIGHT + "\" width=\"" + (getDimension().getWidth() / 3.0) + "\" fill=\"" + shadowFill + "\" />").getBytes("UTF-8"));
+		outputStream.write(("<rect x=\"" + (upperLeft.getX() + 3) + "\" y=\"" + (upperLeft.getY() + 3  + TAB_HEIGHT) + "\" height=\"" 
+				+ (getDimension().getHeight() - TAB_HEIGHT) + "\" width=\"" + getDimension().getWidth() + "\" fill=\"" 
 				+ shadowFill + "\" />").getBytes("UTF-8"));
 		outputStream.write(("<rect x=\"" + (upperLeft.getX()) + "\" y=\"" + upperLeft.getY() + "\" height=\"" 
-				+ height + "\" width=\"" + (getDimension().getWidth() / 3.0) + "\" fill=\"" 
+				+ TAB_HEIGHT + "\" width=\"" + (getDimension().getWidth() / 3.0) + "\" fill=\"" 
 				+ shapeFill + "\" stroke=\"" + shapeStroke + "\" stroke-width=\"1\"  />").getBytes("UTF-8"));
-		outputStream.write(("<rect x=\"" + (upperLeft.getX()) + "\" y=\"" + (upperLeft.getY() + height) + "\" height=\"" 
-				+ (getDimension().height - height) + "\" width=\"" + getDimension().getWidth() + "\" fill=\"" 
+		outputStream.write(("<rect x=\"" + (upperLeft.getX()) + "\" y=\"" + (upperLeft.getY() + TAB_HEIGHT) + "\" height=\"" 
+				+ (getDimension().height - TAB_HEIGHT) + "\" width=\"" + getDimension().getWidth() + "\" fill=\"" 
 				+ shapeFill + "\" stroke=\"" + shapeStroke + "\" stroke-width=\"1\"  />").getBytes("UTF-8"));
 		
-		outputStream.write(("<image x=\"" + (upperLeft.getX() + 3) + "\" y=\"" + (upperLeft.getY() + 2) + "\" href=\"data:image/png;base64," + PACKAGE_ICON.getBase64EncodedImage() + "\" /> ").getBytes("UTF-8"));
+		outputStream.write(("<image x=\"" + (upperLeft.getX() + 3) + "\" y=\"" + (upperLeft.getY() + 2) + "\" href=\"data:image/png;base64," 
+				+ PACKAGE_ICON.getBase64EncodedImage() + "\" /> ").getBytes("UTF-8"));
 
 		
 		PackageName packageName = new PackageName(node.getName());
 		if (StringUtils.isBlank(this.prefix.toString()) || this.prefix.equals(packageName)) {
-			this.drawStringSvg(node.getName(), 
-					getWidth() / 2.0 + upperLeft.getX(), 
-					getHeight() / 2.0 + this.secondaryFontHeight / 2.0  + upperLeft.getY(), 
-					this.secondaryFont, outputStream);
-		} else {
-			this.drawStringSvg(this.prefix.toString() + ".", 
-					getWidth() / 2.0 + upperLeft.getX(), 
-					getHeight() / 2.0 - this.secondaryFontHeight / 2.0 + upperLeft.getY() + getPackageImage().getIconHeight() / 2.0, 
-					this.secondaryFont,
+			this.label.drawStringSvg(node.getName(), 0, 
+					new Point2D.Double(upperLeft.getX() + (getWidth() - getTextAreaWidth()) / 2.0,
+							upperLeft.getY() + TAB_HEIGHT + (getHeight() - TAB_HEIGHT - this.label.getRectangle().getHeight()) / 2.0), 
 					outputStream);
-			this.drawStringSvg(packageName.removePrefix(this.prefix).toString(), 
-					getWidth() / 2.0 + upperLeft.getX(), 
-					getHeight() / 2.0 + this.secondaryFontHeight + upperLeft.getY() + getPackageImage().getIconHeight() / 2.0, 
-					getFont(),
+		} else {
+			this.label.drawStringSvg(this.prefix.toString() + ".", 0, 
+					new Point2D.Double(upperLeft.getX() + (getWidth() - getTextAreaWidth()) / 2.0,
+							upperLeft.getY() + TAB_HEIGHT + (getHeight() - TAB_HEIGHT - this.label.getRectangle().getHeight()) / 2.0), 
+					outputStream);
+			this.label.drawStringSvg(packageName.removePrefix(this.prefix).toString(), 1,
+					new Point2D.Double(upperLeft.getX() + (getWidth() - getTextAreaWidth()) / 2.0,
+							upperLeft.getY() + TAB_HEIGHT + (getHeight() - TAB_HEIGHT - this.label.getRectangle().getHeight()) / 2.0), 
 					outputStream);
 		}
 	}
@@ -128,51 +134,15 @@ public class PackageShape<T> extends NodeShape<T> {
 	
 	public void initialize(Graphics2D graphics, List<Node<T>> nodes) {
 		this.prefix = getPackageNamePrefix(nodes);
-		initializeMainFont(graphics, nodes);
-		initializeSecondaryFont(graphics);
-	}
-
-	private void initializeMainFont(Graphics2D graphics, List<Node<T>> nodes) {
-		float size = 10;
-		Font base = new Font("Helvetica", Font.BOLD, 10);
-		while (size >= 5.0f) {
-			Font font = base.deriveFont(size);
-			FontMetrics metrics = graphics.getFontMetrics(font);
-			Rectangle2D bounds;
-			double width = 0;
-			for (Node<T> node : nodes) {
-				PackageName name = new PackageName(node.getName());
-				bounds = metrics.getStringBounds(name.removePrefix(this.prefix).toString(), graphics);
-				width = Math.max(bounds.getWidth(), width);
-			}
-			
-			setFont(font);
-			this.fontHeight = metrics.getHeight();
-			if (width < getTextAreaWidth()) {
-				break;
-			} else {
-				size -= 0.25;
-			}
+		List<String> remainders = new ArrayList<>();
+		for (Node<T> node : nodes) {
+			remainders.add(new PackageName(node.getName()).removePrefix(this.prefix).toString());
 		}
-	}
-	
-	private void initializeSecondaryFont(Graphics2D graphics) {
-		float size = 10;
-		Font base = new Font("Helvetica", Font.PLAIN, 10);
-		while (size >= 5.0f) {
-			Font font = base.deriveFont(size);
-			FontMetrics metrics = graphics.getFontMetrics(font);
-			Rectangle2D bounds = metrics.getStringBounds(this.prefix.toString() + ".", graphics);
-			
-			this.secondaryFont = font;
-			this.secondaryFontHeight = metrics.getHeight();
-			double width = bounds.getWidth();
-			if (width < getTextAreaWidth()) {
-				break;
-			} else {
-				size -= 0.25;
-			}
-		}
+		
+		this.label.initialize(graphics, 
+				new TextLabelOption(Font.PLAIN, Arrays.asList(this.prefix.toString())), 
+				new TextLabelOption(Font.BOLD, remainders));
+		setFont(this.label.getFonts().get(0));
 	}
 
 	private PackageName getPackageNamePrefix(List<Node<T>> nodes) {
@@ -188,6 +158,6 @@ public class PackageShape<T> extends NodeShape<T> {
 	}
 	
 	protected double getTextAreaWidth() {
-		return getWidth() - 16;
+		return this.label.getRectangle().getWidth();
 	}
 }

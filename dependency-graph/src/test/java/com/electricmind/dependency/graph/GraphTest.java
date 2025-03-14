@@ -10,10 +10,6 @@ import java.util.List;
 import org.junit.Test;
 
 import com.electricmind.dependency.DependencyManager;
-import com.electricmind.dependency.graph.DummyVertex;
-import com.electricmind.dependency.graph.Graph;
-import com.electricmind.dependency.graph.GraphLayer;
-import com.electricmind.dependency.graph.Vertex;
 
 public class GraphTest {
 

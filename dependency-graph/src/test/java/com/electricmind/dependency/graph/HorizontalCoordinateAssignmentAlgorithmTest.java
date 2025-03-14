@@ -7,11 +7,6 @@ import java.util.Map;
 
 import org.junit.Test;
 
-import com.electricmind.dependency.graph.Bias;
-import com.electricmind.dependency.graph.Edge;
-import com.electricmind.dependency.graph.HorizontalCoordinateAssignmentAlgorithm;
-import com.electricmind.dependency.graph.HorizontalCoordinateImpl;
-import com.electricmind.dependency.graph.Vertex;
 import com.electricmind.dependency.graph.HorizontalCoordinateAssignmentAlgorithm.ConflictType;
 
 public class HorizontalCoordinateAssignmentAlgorithmTest {

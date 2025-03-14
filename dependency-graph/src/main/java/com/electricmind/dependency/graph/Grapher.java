@@ -184,7 +184,6 @@ public class Grapher<T> {
 			Node<T> node = (Node<T>) ((Graph.BasicVertex) vertex).getNode();
 			Object object = ((Graph.BasicVertex) dependency).getNode().getItem();
 			float width = determineStrokeWidth(node, object);
-System.out.println("Width: " + width);
 			
 			Arrow line = BoundsUtil.getEndPoints(getBounds(node.getItem()), getBounds(object));
 			line.setWidth(width);
@@ -205,11 +204,13 @@ System.out.println("Width: " + width);
 	}
 
 	private float determineStrokeWidth(Node<T> node, Object object) {
-		int weight = determineWeight(node, object);
-		
 		float width = 1.0f;
-		if (this.maxWeight > 1) {
-			width = (float) (1 + 4 * ((Math.sqrt(weight) / Math.sqrt(this.maxWeight)) - 1));
+		if (this.plot.isUseWeights()) {
+			int weight = determineWeight(node, object);
+			
+			if (this.maxWeight > 1) {
+				width = (float) (1 + 4 * (Math.sqrt(weight) / Math.sqrt(this.maxWeight)));
+			}
 		}
 		return width;
 	}

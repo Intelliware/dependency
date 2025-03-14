@@ -1,3 +1,5 @@
+![Electric Mind Logo](../etc/images/electricMindLogo.png "Electric Mind (formerly Intelliware)")
+
 # dependency-graph
 
 This codebase implements the Sugiyama Algorithm for visually representing [layered

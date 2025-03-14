@@ -9,11 +9,6 @@ import java.util.TreeSet;
 
 import org.junit.Test;
 
-import com.electricmind.dependency.graph.CountCrossingAlgorithm;
-import com.electricmind.dependency.graph.Neighbourly;
-import com.electricmind.dependency.graph.Ordered;
-import com.electricmind.dependency.graph.OrderedLayer;
-
 public class CountCrossingAlgorithmTest {
 	
 	final class OrderedImpl implements Ordered {

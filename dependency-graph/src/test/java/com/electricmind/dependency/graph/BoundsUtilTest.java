@@ -8,9 +8,6 @@ import java.awt.geom.Rectangle2D;
 
 import org.junit.Test;
 
-import com.electricmind.dependency.graph.Arrow;
-import com.electricmind.dependency.graph.BoundsUtil;
-
 public class BoundsUtilTest {
 
 	@Test

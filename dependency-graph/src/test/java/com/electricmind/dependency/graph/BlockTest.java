@@ -8,10 +8,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import com.electricmind.dependency.graph.Block;
-import com.electricmind.dependency.graph.BlockManager;
-import com.electricmind.dependency.graph.Vertex;
-
 @RunWith(MockitoJUnitRunner.class)
 public class BlockTest {
 

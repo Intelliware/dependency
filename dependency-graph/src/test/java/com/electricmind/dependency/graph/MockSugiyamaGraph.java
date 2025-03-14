@@ -5,10 +5,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.TreeSet;
 
-import com.electricmind.dependency.graph.OrderedLayer;
-import com.electricmind.dependency.graph.SugiyamaGraph;
-import com.electricmind.dependency.graph.Vertex;
-
 class MockSugiyamaGraph implements SugiyamaGraph {
 
 	private List<MockVertex> vertices;

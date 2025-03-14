@@ -8,8 +8,6 @@ import java.util.Arrays;
 
 import org.junit.Test;
 
-import com.electricmind.dependency.graph.Arrow;
-
 public class ArrowTest {
 
 	@Test

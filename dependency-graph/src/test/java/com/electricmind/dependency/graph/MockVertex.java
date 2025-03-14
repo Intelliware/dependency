@@ -8,8 +8,6 @@ import java.util.Map;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.builder.CompareToBuilder;
 
-import com.electricmind.dependency.graph.Vertex;
-
 public class MockVertex extends Vertex implements Comparable<MockVertex> {
 	
 	private Map<Integer, List<Vertex>> neighbours = new HashMap<Integer, List<Vertex>>();

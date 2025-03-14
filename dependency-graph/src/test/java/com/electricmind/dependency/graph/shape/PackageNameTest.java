@@ -1,7 +1,5 @@
 package com.electricmind.dependency.graph.shape;
 
-import com.electricmind.dependency.graph.shape.PackageName;
-
 import junit.framework.TestCase;
 
 public class PackageNameTest extends TestCase {
