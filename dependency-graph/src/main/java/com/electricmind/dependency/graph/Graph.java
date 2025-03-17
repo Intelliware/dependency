@@ -55,8 +55,8 @@ class Graph implements SugiyamaGraph {
 		}
 		
 		boolean isBidirectionalWith(BasicVertex vertex) {
-			return this.node.getAfferentCouplings().contains(vertex.node.getItem()) 
-					&& this.node.getEfferentCouplings().contains(vertex.node.getItem());
+			return this.node.getAfferentCouplings().stream().map(c -> c.getItem()).collect(Collectors.toList()).contains(vertex.node.getItem()) 
+					&& this.node.getEfferentCouplings().stream().map(c -> c.getItem()).collect(Collectors.toList()).contains(vertex.node.getItem());
 		}
 
 		Node<?> getNode() {

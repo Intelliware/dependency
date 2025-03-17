@@ -12,8 +12,8 @@ import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.swing.ImageIcon;
 
@@ -30,7 +30,7 @@ public class PackageShape<T> extends NodeShape<T> {
 	private static final double TAB_HEIGHT = 20.0;
 	private static final double PADDING = 8.0;
 	
-	private PackageName prefix;
+	private List<PackageName> prefixes;
 
 	public PackageShape() {
 		super(new Dimension(150, 75));
@@ -82,21 +82,27 @@ public class PackageShape<T> extends NodeShape<T> {
 
 		
 		PackageName packageName = new PackageName(node.getName());
-		if (StringUtils.isBlank(this.prefix.toString()) || this.prefix.equals(packageName)) {
+		PackageName prefix = getPrefixOf(packageName);
+		if (StringUtils.isBlank(prefix.toString()) || prefix.equals(packageName)) {
 			this.label.drawStringSvg(node.getName(), 0, 
 					new Point2D.Double(upperLeft.getX() + (getWidth() - getTextAreaWidth()) / 2.0,
 							upperLeft.getY() + TAB_HEIGHT + (getHeight() - TAB_HEIGHT - this.label.getRectangle().getHeight()) / 2.0), 
 					outputStream);
 		} else {
-			this.label.drawStringSvg(this.prefix.toString() + ".", 0, 
+			this.label.drawStringSvg(prefix.toString() + ".", 0, 
 					new Point2D.Double(upperLeft.getX() + (getWidth() - getTextAreaWidth()) / 2.0,
 							upperLeft.getY() + TAB_HEIGHT + (getHeight() - TAB_HEIGHT - this.label.getRectangle().getHeight()) / 2.0), 
 					outputStream);
-			this.label.drawStringSvg(packageName.removePrefix(this.prefix).toString(), 1,
+			this.label.drawStringSvg(packageName.removePrefix(prefix).toString(), 1,
 					new Point2D.Double(upperLeft.getX() + (getWidth() - getTextAreaWidth()) / 2.0,
 							upperLeft.getY() + TAB_HEIGHT + (getHeight() - TAB_HEIGHT - this.label.getRectangle().getHeight()) / 2.0), 
 					outputStream);
 		}
+	}
+
+	private PackageName getPrefixOf(PackageName packageName) {
+		List<PackageName> list = this.prefixes.stream().filter(p -> packageName.startsWith(p)).collect(Collectors.toList());
+		return list.isEmpty() ? new PackageName("") : list.get(0);
 	}
 
 	protected ImageIcon getPackageImage() {
@@ -112,7 +118,8 @@ public class PackageShape<T> extends NodeShape<T> {
 	
 	protected void drawNodeName(Graphics2D graphics, Node<T> node, Point2D.Double centredAt) {
 		PackageName packageName = new PackageName(node.getName());
-		if (StringUtils.isBlank(this.prefix.toString()) || this.prefix.equals(packageName)) {
+		PackageName prefix = getPrefixOf(packageName);
+		if (StringUtils.isBlank(prefix.toString()) || prefix.equals(packageName)) {
 			super.drawNodeName(graphics, node, centredAt);
 		} else {
 			graphics = (Graphics2D) graphics.create();
@@ -121,10 +128,10 @@ public class PackageShape<T> extends NodeShape<T> {
 				FontMetrics metrics = graphics.getFontMetrics();
 				
 				graphics.translate(centredAt.getX(), centredAt.getY() - metrics.getHeight() / 2.0);
-				drawString(graphics, this.prefix.toString() + ".");
+				drawString(graphics, prefix.toString() + ".");
 	
 				graphics.translate(0.0, metrics.getHeight());
-				drawString(graphics, packageName.removePrefix(this.prefix).toString());
+				drawString(graphics, packageName.removePrefix(prefix).toString());
 				
 			} finally {
 				graphics.dispose();
@@ -133,28 +140,47 @@ public class PackageShape<T> extends NodeShape<T> {
 	}
 	
 	public void initialize(Graphics2D graphics, List<Node<T>> nodes) {
-		this.prefix = getPackageNamePrefix(nodes);
+		this.prefixes = getPackageNamePrefix(nodes);
 		List<String> remainders = new ArrayList<>();
+		
 		for (Node<T> node : nodes) {
-			remainders.add(new PackageName(node.getName()).removePrefix(this.prefix).toString());
+			PackageName packageName = new PackageName(node.getName());
+			for (PackageName prefix : this.prefixes) {
+				if (packageName.startsWith(prefix)) {
+					remainders.add(packageName.removePrefix(prefix).toString());
+				}
+			}
 		}
 		
 		this.label.initialize(graphics, 
-				new TextLabelOption(Font.PLAIN, Arrays.asList(this.prefix.toString())), 
+				new TextLabelOption(Font.PLAIN, this.prefixes.stream().map(p -> p.toString()).collect(Collectors.toList())), 
 				new TextLabelOption(Font.BOLD, remainders));
 		setFont(this.label.getFonts().get(0));
 	}
 
-	private PackageName getPackageNamePrefix(List<Node<T>> nodes) {
-		PackageName prefix = null;
+	private List<PackageName> getPackageNamePrefix(List<Node<T>> nodes) {
+		List<PackageName> prefixes = new ArrayList<>();
 		for (Node<T> node : nodes) {
-			if (prefix == null) {
-				prefix = new PackageName(node.getName());
+			if (prefixes.isEmpty()) {
+				prefixes.add(new PackageName(node.getName()));
 			} else {
-				prefix = prefix.getCommonPrefix(new PackageName(node.getName()));
+				for (int i = 0; i < prefixes.size(); i++) {					
+					PackageName prefix = prefixes.get(i);
+					PackageName temp = prefix.getCommonPrefix(new PackageName(node.getName()));
+					if (temp.toString().length() == 0 && i == (prefixes.size() - 1)) {
+						prefixes.add(new PackageName(node.getName()));
+						break;
+					} else if (temp.toString().length() == 0) {
+						// doesn't match this one... try another
+					} else if (!prefix.equals(temp)) {
+						prefixes.set(i, temp);
+						break;
+					}
+				}
 			}
 		}
-		return prefix;
+		
+		return prefixes;
 	}
 	
 	protected double getTextAreaWidth() {

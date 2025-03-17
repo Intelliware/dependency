@@ -1,6 +1,5 @@
 package com.electricmind.dependency.graph.shape;
 
-import java.awt.Dimension;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -30,8 +29,7 @@ public class PackageGraphWithSimpleCycles {
 		try {
 			Grapher<String> grapher = new Grapher<String>(manager);
 			grapher.setShape(new PackageShape<String>());
-			Dimension d = grapher.createPng(output);
-			System.out.println(d);
+			grapher.createPng(output);
 		} finally {
 			output.close();
 		}

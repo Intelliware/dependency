@@ -16,6 +16,10 @@ class PackageName {
 		return getParts().length;
 	}
 	
+	boolean startsWith(PackageName prefix) {
+		return this.packageName.startsWith(prefix.packageName);
+	}
+	
 	PackageName removePrefix(PackageName prefix) {
 		String[] parts = getParts();
 		return new PackageName(StringUtils.join(ArrayUtils.subarray(parts, prefix.getDepth(), parts.length), "."));
