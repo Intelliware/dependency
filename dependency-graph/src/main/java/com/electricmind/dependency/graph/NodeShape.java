@@ -38,14 +38,14 @@ public class NodeShape<T> {
 	
 	protected NodeShape(Dimension dimension) {
 		this.dimension = dimension;
-		this.label = initializeLabel();
+		this.label = createLabel();
 	}
 
 	public Dimension getDimension() {
 		return this.dimension;
 	}
 
-	protected TextLabel initializeLabel() {
+	protected TextLabel createLabel() {
 		Rectangle2D rectangle = new Rectangle2D.Double(getWidth() * 0.1, getHeight() * 0.1, getTextAreaWidth(), getHeight() * 0.8);
 		return new TextLabel(rectangle);
 	}
@@ -67,7 +67,7 @@ public class NodeShape<T> {
 				+ this.dimension.getHeight() + "\" width=\"" + this.dimension.getWidth() + "\" fill=\"" 
 				+ shapeFill + "\" stroke=\"" + shapeStroke + "\" stroke-width=\"1\"  />").getBytes("UTF-8"));
 		
-		this.drawStringSvg(node.getName(), getWidth() / 2.0 + upperLeft.getX(), getHeight() / 2.0 + upperLeft.getY(), outputStream);
+		this.drawStringSvg(node.getName(), getWidth() / 2.0 + upperLeft.getX(), this.label.getRectangle().getCenterY() + upperLeft.getY(), outputStream);
 
 	}
 	

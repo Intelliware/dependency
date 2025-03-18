@@ -47,10 +47,13 @@ public class TextLabel {
 		String fontWeight = "";
 		if (font.getStyle() == Font.BOLD) {
 			fontWeight = " font-weight=\"bold\" ";
+		} else if (font.getStyle() == Font.ITALIC) {
+			fontWeight = " font-style=\"italic\" ";
 		}
 		
-		output.write(("<text x=\"" + x + "\" y=\"" + y + "\" text-anchor=\"middle\" font-size=\"" + size +"\" font-family=\"" + fontName + "\" " 
-				+ fontWeight + ">" 
+		output.write(("<text x=\"" + x + "\" y=\"" + y + "\" text-anchor=\"middle\" font-size=\"" 
+				+ size +"\" font-family=\"" + fontName + "\" " 
+				+ fontWeight + " dominant-baseline=\"middle\">" 
 				+ StringEscapeUtils.escapeXml(text) 
 				+ "</text>").getBytes("UTF-8"));
 	}
@@ -63,7 +66,7 @@ public class TextLabel {
 
 	private void initializeFont(Graphics2D graphics, int fontStyle, List<String> text) {
 		float size = 10;
-		Font base = new Font("Helvetica", fontStyle, 10);
+		Font base = new Font("Helvetica", fontStyle, (int) size);
 		Font font = base;
 		float fontHeight = 0;
 		while (size >= 5.0f) {
