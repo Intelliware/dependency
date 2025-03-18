@@ -36,7 +36,8 @@ public class PackageShape<T> extends NodeShape<T> {
 		super(new Dimension(150, 75));
 	}
 
-	protected TextLabel initializeLabel() {
+	@Override
+	protected TextLabel createLabel() {
 		Rectangle2D rectangle = new Rectangle2D.Double(PADDING, PADDING + TAB_HEIGHT, getWidth() - 2 * PADDING, getHeight() - 2 * PADDING);
 		return new TextLabel(rectangle);
 	}
