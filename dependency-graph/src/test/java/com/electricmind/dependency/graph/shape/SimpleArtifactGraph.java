@@ -13,21 +13,42 @@ import com.electricmind.dependency.graph.Grapher;
 
 public class SimpleArtifactGraph {
 	
+	public static class ArtifactName {
+		private String name;
+
+		ArtifactName(String name) {
+			this.name = name;
+		}
+
+		public String getName() {
+			return this.name;
+		}
+		
+		public String getPackaging() {
+			return "jar";
+		}
+	}
+	
 	public static void main(String[] args) throws Exception {
 		new SimpleArtifactGraph().process();
 	}
 
 	private void process() throws FileNotFoundException, IOException {
-		DependencyManager<String> manager = new DependencyManager<String>();
-		manager.add("artifact1", "artifact2");
-		manager.add("artifact1", "artifact3");
+		DependencyManager<ArtifactName> manager = new DependencyManager<ArtifactName>();
+		ArtifactName artifact1 = new ArtifactName("com.example.thing:artifact1:1.1");
+		ArtifactName artifact2 = new ArtifactName("com.example.thing:artifact2:1.1");
+		manager.add(artifact1, artifact2);
+		manager.add(artifact1, new ArtifactName("com.example.thing:artifact3:1.1"));
+		manager.add(artifact2, new ArtifactName("com.example.thing:artifact4:1.1"));
 
 		File file = new File(SystemUtils.JAVA_IO_TMPDIR, "SimpleArtifactGraph.svg");
 		System.out.println(file.getAbsolutePath());
 		OutputStream output = new FileOutputStream(file);
 		try {
-			Grapher<String> grapher = new Grapher<String>(manager);
-			grapher.setShape(new ArtifactShape<String>());
+			Grapher<ArtifactName> grapher = new Grapher<>(manager);
+			ArtifactShape<ArtifactName> shape = new ArtifactShape<>();
+			shape.setLabelStrategy(new MavenArtifactLabelStrategy());
+			grapher.setShape(shape);
 			grapher.createSvg(output);
 		} finally {
 			output.close();

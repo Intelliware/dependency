@@ -23,13 +23,13 @@ public class PackageGraphWithSimpleCycles {
 		manager.add("ca.intelliware.example.sub4", "ca.intelliware.example.sub5");
 		manager.add("ca.intelliware.example.sub5", "ca.intelliware.example.sub4");
 
-		File file = new File(SystemUtils.JAVA_IO_TMPDIR, "PackageGraphWithSimpleCycles.png");
+		File file = new File(SystemUtils.JAVA_IO_TMPDIR, "PackageGraphWithSimpleCycles.svg");
 		System.out.println(file.getAbsolutePath());
 		OutputStream output = new FileOutputStream(file);
 		try {
 			Grapher<String> grapher = new Grapher<String>(manager);
 			grapher.setShape(new PackageShape<String>());
-			grapher.createPng(output);
+			grapher.createSvg(output);
 		} finally {
 			output.close();
 		}

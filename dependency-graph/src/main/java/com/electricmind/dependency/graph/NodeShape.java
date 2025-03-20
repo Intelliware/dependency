@@ -11,7 +11,6 @@ import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import com.electricmind.dependency.Node;
 
@@ -29,6 +28,7 @@ public class NodeShape<T> {
 	private Plot plot;
 	private Font font;
 	protected TextLabel label;
+	protected TextLabelStrategy labelStrategy = new TextLabelStrategy();
 
 	public NodeShape() {
 		this(new Dimension(100, 50));
@@ -64,9 +64,8 @@ public class NodeShape<T> {
 		outputStream.write(("<rect x=\"" + (upperLeft.getX()) + "\" y=\"" + (upperLeft.getY()) + "\" height=\"" 
 				+ this.dimension.getHeight() + "\" width=\"" + this.dimension.getWidth() + "\" fill=\"" 
 				+ shapeFill + "\" stroke=\"" + shapeStroke + "\" stroke-width=\"1\"  />").getBytes("UTF-8"));
-		
-		this.label.drawStringSvg(node.getName(), 0, upperLeft, outputStream);
 
+		this.labelStrategy.populate(node, this.label, upperLeft, outputStream);
 	}
 	
 	protected void draw(Graphics2D graphics, Node<T> node) {
@@ -153,9 +152,10 @@ public class NodeShape<T> {
 		AffineTransform transform = new AffineTransform();
 		transform.scale(1.00 / ratio, 1.0 / ratio);
 		this.font = font.deriveFont(transform);
-		
-		List<String> text = nodes.stream().map(n -> n.getName()).collect(Collectors.toList());
-		this.label.initialize(graphics, new TextLabelOption(Font.PLAIN, text));
+
+		@SuppressWarnings({ "rawtypes", "unchecked" })
+		List<Node<?>> items = (List<Node<?>>) (List) nodes;
+		this.labelStrategy.initialize(graphics, this.label, items);
 	}
 
 	protected double getTextAreaWidth() {
@@ -168,5 +168,13 @@ public class NodeShape<T> {
 
 	protected void setFont(Font font) {
 		this.font = font;
+	}
+
+	public TextLabelStrategy getLabelStrategy() {
+		return this.labelStrategy;
+	}
+
+	public void setLabelStrategy(TextLabelStrategy labelStrategy) {
+		this.labelStrategy = labelStrategy;
 	}
 }

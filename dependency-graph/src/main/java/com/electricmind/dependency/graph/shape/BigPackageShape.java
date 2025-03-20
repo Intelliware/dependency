@@ -24,8 +24,7 @@ public class BigPackageShape<T> extends PackageShape<T> {
 	@Override
 	protected TextLabel createLabel() {
 		int iconHeight = getPackageImage().getIconHeight();
-		Rectangle2D.Double rectangle = new Rectangle2D.Double(PADDING, iconHeight + PADDING, getWidth() - 2*PADDING, getHeight() - 2*PADDING - iconHeight);
-		return new TextLabel(rectangle);
+		return new TextLabel(new Rectangle2D.Double(PADDING, iconHeight + PADDING, getWidth() - 2*PADDING, getHeight() - 2*PADDING - iconHeight));
 	}
 
 	protected void draw(Graphics2D graphics, Node<T> node) {
@@ -41,9 +40,10 @@ public class BigPackageShape<T> extends PackageShape<T> {
 	protected void drawSvg(Node<T> node, Point2D upperLeft, OutputStream outputStream) throws IOException {
 		double x = (getWidth() - getPackageImage().getIconWidth()) / 2.0;
 		
-		outputStream.write(("<image x=\"" + (upperLeft.getX() + x) + "\" y=\"" + upperLeft.getY() + "\" href=\"data:image/png;base64," + PACKAGE_BIG_ICON.getBase64EncodedImage() + "\" /> ").getBytes("UTF-8"));
+		outputStream.write(("<image x=\"" + (upperLeft.getX() + x) + "\" y=\"" + upperLeft.getY() 
+			+ "\" href=\"data:image/png;base64," + PACKAGE_BIG_ICON.getBase64EncodedImage() + "\" /> ").getBytes("UTF-8"));
 
-		drawPackageNameSvg(node, upperLeft, outputStream);
+		this.labelStrategy.populate(node, this.label, upperLeft, outputStream);
 	}
 	
 	@Override

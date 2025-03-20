@@ -26,7 +26,7 @@ public class ArtifactShape<T> extends NodeShape<T> {
 	
 	public ArtifactShape() {
 		super(new Dimension(160, 75));
-		Rectangle2D rectangle = new Rectangle2D.Double(20, 2*PADDING, 120, 10);
+		Rectangle2D rectangle = new Rectangle2D.Double(20, PADDING, 120, 10);
 		this.stereotypeLabel = new TextLabel(rectangle);
 	}
 	
@@ -54,6 +54,10 @@ public class ArtifactShape<T> extends NodeShape<T> {
 		outputStream.write(ARTIFACT_SHAPE.getBytes("UTF-8"));
 		outputStream.write(("</g>").getBytes("UTF-8"));
 
-		this.stereotypeLabel.drawStringSvg("<<artifact>>", 0, upperLeft, outputStream);
+		String packaging = "artifact";
+		if (this.labelStrategy instanceof StereotypeProvider) {
+			packaging = ((StereotypeProvider) this.labelStrategy).getStereotype(node);
+		}
+		this.stereotypeLabel.drawStringSvg("<<" + packaging + ">>", 0, upperLeft, outputStream);
 	}
 }
