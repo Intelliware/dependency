@@ -28,7 +28,7 @@ import com.electricmind.dependency.graph.TextLabelOption;
 public class PackageShape<T> extends NodeShape<T> {
 	
 	private static final double TAB_HEIGHT = 20.0;
-	private static final double PADDING = 8.0;
+	protected static final double PADDING = 8.0;
 	
 	private List<PackageName> prefixes;
 
@@ -82,22 +82,17 @@ public class PackageShape<T> extends NodeShape<T> {
 				+ PACKAGE_ICON.getBase64EncodedImage() + "\" /> ").getBytes("UTF-8"));
 
 		
+		drawPackageNameSvg(node, upperLeft, outputStream);
+	}
+
+	protected void drawPackageNameSvg(Node<T> node, Point2D upperLeft, OutputStream outputStream) throws IOException {
 		PackageName packageName = new PackageName(node.getName());
 		PackageName prefix = getPrefixOf(packageName);
 		if (StringUtils.isBlank(prefix.toString()) || prefix.equals(packageName)) {
-			this.label.drawStringSvg(node.getName(), 0, 
-					new Point2D.Double(upperLeft.getX() + (getWidth() - getTextAreaWidth()) / 2.0,
-							upperLeft.getY() + TAB_HEIGHT + (getHeight() - TAB_HEIGHT - this.label.getRectangle().getHeight()) / 2.0), 
-					outputStream);
+			this.label.drawStringSvg(node.getName(), 0, upperLeft, outputStream);
 		} else {
-			this.label.drawStringSvg(prefix.toString() + ".", 0, 
-					new Point2D.Double(upperLeft.getX() + (getWidth() - getTextAreaWidth()) / 2.0,
-							upperLeft.getY() + TAB_HEIGHT + (getHeight() - TAB_HEIGHT - this.label.getRectangle().getHeight()) / 2.0), 
-					outputStream);
-			this.label.drawStringSvg(packageName.removePrefix(prefix).toString(), 1,
-					new Point2D.Double(upperLeft.getX() + (getWidth() - getTextAreaWidth()) / 2.0,
-							upperLeft.getY() + TAB_HEIGHT + (getHeight() - TAB_HEIGHT - this.label.getRectangle().getHeight()) / 2.0), 
-					outputStream);
+			this.label.drawStringSvg(prefix.toString() + ".", 0, upperLeft, outputStream);
+			this.label.drawStringSvg(packageName.removePrefix(prefix).toString(), 1, upperLeft, outputStream);
 		}
 	}
 

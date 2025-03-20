@@ -54,6 +54,6 @@ public class ArtifactShape<T> extends NodeShape<T> {
 		outputStream.write(ARTIFACT_SHAPE.getBytes("UTF-8"));
 		outputStream.write(("</g>").getBytes("UTF-8"));
 
-		this.stereotypeLabel.drawStringSvg("<<artifact>>", 0, new Point2D.Double(upperLeft.getX() + 20, upperLeft.getY() + 2 * PADDING), outputStream);
+		this.stereotypeLabel.drawStringSvg("<<artifact>>", 0, upperLeft, outputStream);
 	}
 }

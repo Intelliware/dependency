@@ -13,8 +13,6 @@ import java.io.OutputStream;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang.StringEscapeUtils;
-
 import com.electricmind.dependency.Node;
 
 /**
@@ -67,7 +65,7 @@ public class NodeShape<T> {
 				+ this.dimension.getHeight() + "\" width=\"" + this.dimension.getWidth() + "\" fill=\"" 
 				+ shapeFill + "\" stroke=\"" + shapeStroke + "\" stroke-width=\"1\"  />").getBytes("UTF-8"));
 		
-		this.drawStringSvg(node.getName(), getWidth() / 2.0 + upperLeft.getX(), this.label.getRectangle().getCenterY() + upperLeft.getY(), outputStream);
+		this.label.drawStringSvg(node.getName(), 0, upperLeft, outputStream);
 
 	}
 	
@@ -115,25 +113,6 @@ public class NodeShape<T> {
 		double y = metrics.getAscent() + metrics.getLeading() - (bounds.getHeight() / 2.0);
 		double x = -bounds.getWidth() / 2.0;
 		graphics.drawString(text, (float) x, (float) y);
-	}
-
-	protected void drawStringSvg(String text, double x, double y, OutputStream output) throws IOException {
-		drawStringSvg(text, x, y, this.font, output);
-	}
-
-	protected void drawStringSvg(String text, double x, double y, Font font, OutputStream output) throws IOException {
-		String fontName = font.getFamily();
-		float size = font.getSize2D();
-		
-		String fontWeight = "";
-		if (font.getStyle() == Font.BOLD) {
-			fontWeight = " font-weight=\"bold\" ";
-		}
-		
-		output.write(("<text x=\"" + x + "\" y=\"" + y + "\" text-anchor=\"middle\" font-size=\"" + size +"\" font-family=\"" + fontName + "\" " 
-				+ fontWeight + ">" 
-				+ StringEscapeUtils.escapeXml(text) 
-				+ "</text>").getBytes("UTF-8"));
 	}
 
 	public double getHeight() {

@@ -29,7 +29,7 @@ public class TextLabel {
 			totalHeight += height;
 		}
 		
-		double y = upperLeft.getY() + (this.rectangle.getHeight() - totalHeight) / 2.0;
+		double y = upperLeft.getY() + this.getRectangle().getY() + (this.rectangle.getHeight() - totalHeight) / 2.0;
 		for (int i = 0; i <= ordinal; i++) {
 			if (i == ordinal) {
 				y += (this.fontHeights.get(ordinal) / 2.0);
@@ -37,7 +37,7 @@ public class TextLabel {
 				y += this.fontHeights.get(ordinal);
 			}
 		}
-		drawStringSvg(text, upperLeft.getX() + this.rectangle.getWidth() / 2.0, y, font, output);
+		drawStringSvg(text, upperLeft.getX() + this.rectangle.getCenterX(), y, font, output);
 	}
 	
 	protected void drawStringSvg(String text, double x, double y, Font font, OutputStream output) throws IOException {
