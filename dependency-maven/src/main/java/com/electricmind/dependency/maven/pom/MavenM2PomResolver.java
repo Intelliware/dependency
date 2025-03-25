@@ -13,7 +13,6 @@ public class MavenM2PomResolver implements PomResolver {
 		File directory = new File(m2Repo, groupId.replace(".", "/") + "/" + artifactId.replace(".", "/") + "/" + version);
 		
 		File pom = new File(directory, artifactId + "-" + version + ".pom");
-		System.out.println(pom.getAbsolutePath());
 		return pom.exists() ? pom : null;
 	}
 }

@@ -57,7 +57,7 @@ public class PomModel {
 	}
 
 	public String getPackaging() {
-		return this.packaging;
+		return this.packaging == null ? "jar" : this.packaging;
 	}
 
 	public void setPackaging(String packaging) {
@@ -82,13 +82,5 @@ public class PomModel {
 
 	public MavenArtifactName getArtifactName() {
 		return new MavenArtifactName(getGroupId(), getArtifactId(), getVersion(), getPackaging());
-	}
-
-	public MavenArtifactName getParentArtifactName() {
-		if (this.parent == null) {
-			return null;
-		} else {
-			return new MavenArtifactName(getParent().getGroupId(), getParent().getArtifactId(), getParent().getVersion(), "pom");
-		}
 	}
 }

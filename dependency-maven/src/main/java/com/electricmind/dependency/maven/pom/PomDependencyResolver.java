@@ -80,7 +80,6 @@ public class PomDependencyResolver {
 	private DependencyManager<MavenArtifactName> augmentWithVersions(
 			DependencyManager<SimpleName> dependencies) {
 		
-		System.out.println(this.versionMap);
 		DependencyManager<MavenArtifactName> result = new DependencyManager<>();
 		for (Layer<Node<SimpleName>> layer : dependencies.getNodeLayers()) {
 			for (Node<SimpleName> node : layer.getContents()) {
@@ -89,7 +88,6 @@ public class PomDependencyResolver {
 				
 				for (Coupling<SimpleName> coupling : node.getEfferentCouplings()) {
 					MavenArtifactName dependencyName = this.versionMap.get(coupling.getItem());
-					System.out.println("Coupling weight: " + node.getItem() + " -> " + coupling.getItem() + " : " + coupling.getWeight());
 					result.add(fullName, dependencyName, coupling.getWeight());
 				} 
 			}
@@ -144,6 +142,11 @@ public class PomDependencyResolver {
 	}
 
 	private void addDependencyVersion(SimpleName pomName, MavenArtifactName artifactName) {
-		this.versionMap.put(pomName, artifactName);
+		MavenArtifactName original = this.versionMap.get(pomName);
+		if (original == null) {
+			this.versionMap.put(pomName, artifactName);
+		} else if (new VersionNumber(artifactName.getVersion()).isGreaterThan(new VersionNumber(original.getVersion()))) {
+			this.versionMap.put(pomName, artifactName);
+		}
 	}
 }
