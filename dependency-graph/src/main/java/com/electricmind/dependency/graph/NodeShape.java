@@ -11,9 +11,6 @@ import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
-import java.util.stream.Collectors;
-
-import org.apache.commons.lang.StringEscapeUtils;
 
 import com.electricmind.dependency.Node;
 
@@ -31,6 +28,7 @@ public class NodeShape<T> {
 	private Plot plot;
 	private Font font;
 	protected TextLabel label;
+	protected TextLabelStrategy labelStrategy = new TextLabelStrategy();
 
 	public NodeShape() {
 		this(new Dimension(100, 50));
@@ -66,9 +64,8 @@ public class NodeShape<T> {
 		outputStream.write(("<rect x=\"" + (upperLeft.getX()) + "\" y=\"" + (upperLeft.getY()) + "\" height=\"" 
 				+ this.dimension.getHeight() + "\" width=\"" + this.dimension.getWidth() + "\" fill=\"" 
 				+ shapeFill + "\" stroke=\"" + shapeStroke + "\" stroke-width=\"1\"  />").getBytes("UTF-8"));
-		
-		this.drawStringSvg(node.getName(), getWidth() / 2.0 + upperLeft.getX(), this.label.getRectangle().getCenterY() + upperLeft.getY(), outputStream);
 
+		this.labelStrategy.populate(node, this.label, upperLeft, outputStream);
 	}
 	
 	protected void draw(Graphics2D graphics, Node<T> node) {
@@ -117,25 +114,6 @@ public class NodeShape<T> {
 		graphics.drawString(text, (float) x, (float) y);
 	}
 
-	protected void drawStringSvg(String text, double x, double y, OutputStream output) throws IOException {
-		drawStringSvg(text, x, y, this.font, output);
-	}
-
-	protected void drawStringSvg(String text, double x, double y, Font font, OutputStream output) throws IOException {
-		String fontName = font.getFamily();
-		float size = font.getSize2D();
-		
-		String fontWeight = "";
-		if (font.getStyle() == Font.BOLD) {
-			fontWeight = " font-weight=\"bold\" ";
-		}
-		
-		output.write(("<text x=\"" + x + "\" y=\"" + y + "\" text-anchor=\"middle\" font-size=\"" + size +"\" font-family=\"" + fontName + "\" " 
-				+ fontWeight + ">" 
-				+ StringEscapeUtils.escapeXml(text) 
-				+ "</text>").getBytes("UTF-8"));
-	}
-
 	public double getHeight() {
 		return this.dimension.getHeight();
 	}
@@ -174,9 +152,10 @@ public class NodeShape<T> {
 		AffineTransform transform = new AffineTransform();
 		transform.scale(1.00 / ratio, 1.0 / ratio);
 		this.font = font.deriveFont(transform);
-		
-		List<String> text = nodes.stream().map(n -> n.getName()).collect(Collectors.toList());
-		this.label.initialize(graphics, new TextLabelOption(Font.PLAIN, text));
+
+		@SuppressWarnings({ "rawtypes", "unchecked" })
+		List<Node<?>> items = (List<Node<?>>) (List) nodes;
+		this.labelStrategy.initialize(graphics, this.label, items);
 	}
 
 	protected double getTextAreaWidth() {
@@ -189,5 +168,13 @@ public class NodeShape<T> {
 
 	protected void setFont(Font font) {
 		this.font = font;
+	}
+
+	public TextLabelStrategy getLabelStrategy() {
+		return this.labelStrategy;
+	}
+
+	public void setLabelStrategy(TextLabelStrategy labelStrategy) {
+		this.labelStrategy = labelStrategy;
 	}
 }

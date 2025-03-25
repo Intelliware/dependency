@@ -3,7 +3,6 @@ package com.electricmind.dependency.graph.shape;
 import static com.electricmind.dependency.graph.shape.CommonImage.PACKAGE_ICON;
 
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -11,9 +10,7 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.swing.ImageIcon;
 
@@ -23,23 +20,21 @@ import com.electricmind.dependency.Node;
 import com.electricmind.dependency.graph.HtmlColor;
 import com.electricmind.dependency.graph.NodeShape;
 import com.electricmind.dependency.graph.TextLabel;
-import com.electricmind.dependency.graph.TextLabelOption;
 
 public class PackageShape<T> extends NodeShape<T> {
 	
 	private static final double TAB_HEIGHT = 20.0;
-	private static final double PADDING = 8.0;
+	protected static final double PADDING = 8.0;
 	
-	private List<PackageName> prefixes;
-
 	public PackageShape() {
 		super(new Dimension(150, 75));
+		setLabelStrategy(new PackageNameLabelStrategy());
 	}
 
 	@Override
 	protected TextLabel createLabel() {
-		Rectangle2D rectangle = new Rectangle2D.Double(PADDING, PADDING + TAB_HEIGHT, getWidth() - 2 * PADDING, getHeight() - 2 * PADDING);
-		return new TextLabel(rectangle);
+		return new TextLabel(new Rectangle2D.Double(PADDING, PADDING + TAB_HEIGHT, 
+				getWidth() - 2 * PADDING, getHeight() - 2 * PADDING - TAB_HEIGHT));
 	}
 
 	@Override
@@ -82,28 +77,7 @@ public class PackageShape<T> extends NodeShape<T> {
 				+ PACKAGE_ICON.getBase64EncodedImage() + "\" /> ").getBytes("UTF-8"));
 
 		
-		PackageName packageName = new PackageName(node.getName());
-		PackageName prefix = getPrefixOf(packageName);
-		if (StringUtils.isBlank(prefix.toString()) || prefix.equals(packageName)) {
-			this.label.drawStringSvg(node.getName(), 0, 
-					new Point2D.Double(upperLeft.getX() + (getWidth() - getTextAreaWidth()) / 2.0,
-							upperLeft.getY() + TAB_HEIGHT + (getHeight() - TAB_HEIGHT - this.label.getRectangle().getHeight()) / 2.0), 
-					outputStream);
-		} else {
-			this.label.drawStringSvg(prefix.toString() + ".", 0, 
-					new Point2D.Double(upperLeft.getX() + (getWidth() - getTextAreaWidth()) / 2.0,
-							upperLeft.getY() + TAB_HEIGHT + (getHeight() - TAB_HEIGHT - this.label.getRectangle().getHeight()) / 2.0), 
-					outputStream);
-			this.label.drawStringSvg(packageName.removePrefix(prefix).toString(), 1,
-					new Point2D.Double(upperLeft.getX() + (getWidth() - getTextAreaWidth()) / 2.0,
-							upperLeft.getY() + TAB_HEIGHT + (getHeight() - TAB_HEIGHT - this.label.getRectangle().getHeight()) / 2.0), 
-					outputStream);
-		}
-	}
-
-	private PackageName getPrefixOf(PackageName packageName) {
-		List<PackageName> list = this.prefixes.stream().filter(p -> packageName.startsWith(p)).collect(Collectors.toList());
-		return list.isEmpty() ? new PackageName("") : list.get(0);
+		this.labelStrategy.populate(node, this.label, upperLeft, outputStream);
 	}
 
 	protected ImageIcon getPackageImage() {
@@ -119,7 +93,7 @@ public class PackageShape<T> extends NodeShape<T> {
 	
 	protected void drawNodeName(Graphics2D graphics, Node<T> node, Point2D.Double centredAt) {
 		PackageName packageName = new PackageName(node.getName());
-		PackageName prefix = getPrefixOf(packageName);
+		PackageName prefix = ((PackageNameLabelStrategy) getLabelStrategy()).getPrefixOf(packageName);
 		if (StringUtils.isBlank(prefix.toString()) || prefix.equals(packageName)) {
 			super.drawNodeName(graphics, node, centredAt);
 		} else {
@@ -140,50 +114,12 @@ public class PackageShape<T> extends NodeShape<T> {
 		}
 	}
 	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void initialize(Graphics2D graphics, List<Node<T>> nodes) {
-		this.prefixes = getPackageNamePrefix(nodes);
-		List<String> remainders = new ArrayList<>();
-		
-		for (Node<T> node : nodes) {
-			PackageName packageName = new PackageName(node.getName());
-			for (PackageName prefix : this.prefixes) {
-				if (packageName.startsWith(prefix)) {
-					remainders.add(packageName.removePrefix(prefix).toString());
-				}
-			}
-		}
-		
-		this.label.initialize(graphics, 
-				new TextLabelOption(Font.PLAIN, this.prefixes.stream().map(p -> p.toString()).collect(Collectors.toList())), 
-				new TextLabelOption(Font.BOLD, remainders));
+		getLabelStrategy().initialize(graphics, label, (List<Node<?>>) (List) nodes);
 		setFont(this.label.getFonts().get(0));
 	}
 
-	private List<PackageName> getPackageNamePrefix(List<Node<T>> nodes) {
-		List<PackageName> prefixes = new ArrayList<>();
-		for (Node<T> node : nodes) {
-			if (prefixes.isEmpty()) {
-				prefixes.add(new PackageName(node.getName()));
-			} else {
-				for (int i = 0; i < prefixes.size(); i++) {					
-					PackageName prefix = prefixes.get(i);
-					PackageName temp = prefix.getCommonPrefix(new PackageName(node.getName()));
-					if (temp.toString().length() == 0 && i == (prefixes.size() - 1)) {
-						prefixes.add(new PackageName(node.getName()));
-						break;
-					} else if (temp.toString().length() == 0) {
-						// doesn't match this one... try another
-					} else if (!prefix.equals(temp)) {
-						prefixes.set(i, temp);
-						break;
-					}
-				}
-			}
-		}
-		
-		return prefixes;
-	}
-	
 	protected double getTextAreaWidth() {
 		return this.label.getRectangle().getWidth();
 	}
