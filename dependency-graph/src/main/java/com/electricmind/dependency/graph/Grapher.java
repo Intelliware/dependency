@@ -383,7 +383,7 @@ public class Grapher<T> {
 	
 	private void drawLayerBarsSvg(Dimension dimension, OutputStream output) throws IOException {
 		double height = getLayerBandHeight();
-		String fill = HtmlColor.asHtml(getStripeColour());
+		String fill = ColorUtil.asHtml(getStripeColour());
 		for (int i = 1; (i * height) <= dimension.getHeight(); i += 2) {
 			output.write(("<rect x=\"0\" y=\"" + i * height + "\" width=\"" + dimension.getWidth() + "\" height=\"" + height + "\" fill=\"" + fill + "\" />").getBytes("UTF-8"));
 		}

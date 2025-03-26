@@ -1,5 +1,6 @@
 package com.electricmind.dependency.graph;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
@@ -54,12 +55,16 @@ public class NodeShape<T> {
 
 	protected void drawSvg(Node<T> node, Point2D upperLeft, OutputStream outputStream) throws IOException {
 		
-		String shadowFill = HtmlColor.asHtml(getPlot().getShadowColor());
-		String shapeFill = HtmlColor.asHtml(getPlot().getShapeFillColor());
-		String shapeStroke = HtmlColor.asHtml(getPlot().getShapeLineColor());
+		Color shadowColor = getPlot().getShadowColor();
+		String shadowFill = ColorUtil.asHtml(shadowColor);
+		float shadowOpacity = ColorUtil.asOpacity(shadowColor);
+		
+		String shapeFill = ColorUtil.asHtml(getPlot().getShapeFillColorProvider().getColor(node));
+		String shapeStroke = ColorUtil.asHtml(getPlot().getShapeLineColor());
 		
 		outputStream.write(("<rect x=\"" + (upperLeft.getX() + 3) + "\" y=\"" + (upperLeft.getY() + 3) + "\" height=\"" 
-				+ this.dimension.getHeight() + "\" width=\"" + this.dimension.getWidth() + "\" fill=\"" + shadowFill + "\" />").getBytes("UTF-8"));
+				+ this.dimension.getHeight() + "\" width=\"" + this.dimension.getWidth() + "\" fill=\"" + shadowFill + "\" fill-opacity=\"" 
+				+ shadowOpacity + "\" />").getBytes("UTF-8"));
 		
 		outputStream.write(("<rect x=\"" + (upperLeft.getX()) + "\" y=\"" + (upperLeft.getY()) + "\" height=\"" 
 				+ this.dimension.getHeight() + "\" width=\"" + this.dimension.getWidth() + "\" fill=\"" 
@@ -73,7 +78,7 @@ public class NodeShape<T> {
 		graphics.fill(new Rectangle2D.Float(3, 3, this.dimension.width, this.dimension.height));
 
 		graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-		graphics.setPaint(this.plot.getShapeFillColor());
+		graphics.setPaint(this.plot.getShapeFillColorProvider().getColor(node));
 		graphics.fill(new Rectangle2D.Float(0, 0, this.dimension.width, this.dimension.height));
 		graphics.setColor(this.plot.getShapeLineColor());
 		graphics.draw(new Rectangle2D.Float(0, 0, this.dimension.width, this.dimension.height));

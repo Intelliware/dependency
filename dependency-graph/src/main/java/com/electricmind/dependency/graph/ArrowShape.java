@@ -76,9 +76,9 @@ class ArrowShape {
 		 */
 		
 		
-		String strokeColour = HtmlColor.asHtml(this.plot.getArrowColor());
+		String strokeColour = ColorUtil.asHtml(this.plot.getArrowColor());
 		if (arrow.isPointingUpward()) {
-			strokeColour = HtmlColor.asHtml(this.plot.getReverseArrowColor());
+			strokeColour = ColorUtil.asHtml(this.plot.getReverseArrowColor());
 		}
 
 		String instruction = "M ";
