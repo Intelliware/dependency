@@ -2,7 +2,7 @@ package com.electricmind.dependency.graph;
 
 import java.util.List;
 
-import org.apache.commons.lang.time.StopWatch;
+import org.apache.commons.lang3.time.StopWatch;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -43,7 +43,7 @@ class SugiyamaAlgorithm {
 		stopWatch.start();
 		removeCycles(dependencyManager);
 		Graph graph = assignLayers(dependencyManager);
-		this.log.info("Layer assignment took " + stopWatch.getTime() + " ms");
+		this.log.info("Layer assignment took " + stopWatch.getDuration() + " ms");
 		reduceCrossings(graph);
 		assignHorizontalCoordinates(graph);
 
@@ -51,7 +51,7 @@ class SugiyamaAlgorithm {
 		LayeredGraph<?> layeredGraph = dependencyManager.getLayeredGraph();
 		this.log.info("Graph with " + layeredGraph.getNodes().size() + " nodes and " 
 				+ layeredGraph.getLayers().size() + " layers processed in " 
-				+ stopWatch.getTime() + " ms");
+				+ stopWatch.getDuration() + " ms");
 		return graph;
 	}
 
@@ -60,7 +60,7 @@ class SugiyamaAlgorithm {
 		stopWatch.start();
 		new HorizontalCoordinateAssignmentAlgorithm().process(graph);
 		stopWatch.stop();
-		this.log.info("Horizontal coordinate assignment took " + stopWatch.getTime() + " ms");
+		this.log.info("Horizontal coordinate assignment took " + stopWatch.getDuration() + " ms");
 	}
 
 	private void cycleBottomToTop(Graph graph) {
@@ -113,7 +113,7 @@ class SugiyamaAlgorithm {
 			cycleBottomToTop(graph);
 			orderLayers(graph);
 		} while (graph.hasChanged());
-		this.log.info("Crossing reduction took " + stopWatch.getTime() + " ms");
+		this.log.info("Crossing reduction took " + stopWatch.getDuration() + " ms");
 	}
 
 	private void orderLayers(Graph graph) {

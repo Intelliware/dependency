@@ -14,7 +14,7 @@ import java.util.List;
 
 import javax.swing.ImageIcon;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import com.electricmind.dependency.Node;
 import com.electricmind.dependency.graph.ColorUtil;
