@@ -7,7 +7,6 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -144,7 +143,7 @@ public class PomDependencyResolver {
 	}
 
 	private String resolveVariable(String variable, Map<String, String> properties, PomModel parentPom) throws IOException {
-		String v = StringUtils.substringBeforeLast(StringUtils.substringAfter(variable, "${"), "}");
+		String v = new Variable(variable).getName();
 		
 		String result = null;
 		Map<String, String> map = new HashMap<>(parentPom.getProperties());
@@ -159,15 +158,34 @@ public class PomDependencyResolver {
 		}
 		
 		while (isVariableReference(result)) {
-			String temp = StringUtils.substringBeforeLast(StringUtils.substringAfter(result, "${"), "}");
+			String temp = new Variable(result).getName();
 			if (map.containsKey(temp)) {
 				result = map.get(temp);
 			} else {
-				break;
+				if (ancestor != null) {
+					properties = findMoreProperties(ancestor, properties);
+					// only do this once
+					ancestor = null;
+				}
+				if (map.containsKey(temp)) {
+					result = map.get(temp);
+				} else {
+					break;
+				}
 			}
 		}
 		
 		return result;
+	}
+
+	private Map<String, String> findMoreProperties(PomModel pom, Map<String, String> properties) throws IOException {
+		Map<String, String> map = new HashMap<>(pom.getProperties());
+		if (pom.getParent() != null) {
+			PomModel parent = parsePom(this.resolver.resolvePom(pom.getParent().getGroupId(),pom.getParent().getArtifactId(), pom.getParent().getVersion()));
+			map.putAll(findMoreProperties(parent, map));
+		}
+		map.putAll(properties);
+		return map;
 	}
 
 	private boolean isVariableReference(String value) {
@@ -202,7 +220,6 @@ public class PomDependencyResolver {
 	}
 
 	private void findAllDependenciesAndResolveVersion(SimpleName pomName, PomModel dependentPom) throws IOException {
-		
 		if (dependentPom != null) {
 			SimpleName parentName = new SimpleName(dependentPom.getGroupId(), dependentPom.getArtifactId());
 			addDependencyVersion(parentName, dependentPom.getArtifactName());
