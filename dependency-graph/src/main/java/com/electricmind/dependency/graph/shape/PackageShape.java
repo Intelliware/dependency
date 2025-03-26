@@ -17,7 +17,7 @@ import javax.swing.ImageIcon;
 import org.apache.commons.lang.StringUtils;
 
 import com.electricmind.dependency.Node;
-import com.electricmind.dependency.graph.HtmlColor;
+import com.electricmind.dependency.graph.ColorUtil;
 import com.electricmind.dependency.graph.NodeShape;
 import com.electricmind.dependency.graph.TextLabel;
 
@@ -44,7 +44,7 @@ public class PackageShape<T> extends NodeShape<T> {
 		graphics.fill(new Rectangle2D.Double(3, 3 + TAB_HEIGHT, getWidth(), getHeight() - TAB_HEIGHT));
 		
 		graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-		graphics.setPaint(getPlot().getShapeFillColor());
+		graphics.setPaint(getPlot().getShapeFillColorProvider().getColor(node));
 		graphics.fill(new Rectangle2D.Double(0, 0, getWidth() / 3.0, TAB_HEIGHT));
 		graphics.fill(new Rectangle2D.Double(0, TAB_HEIGHT, getWidth(), getHeight() - TAB_HEIGHT));
 		graphics.setColor(getPlot().getShapeLineColor());
@@ -57,9 +57,9 @@ public class PackageShape<T> extends NodeShape<T> {
 	
 	protected void drawSvg(Node<T> node, Point2D upperLeft, OutputStream outputStream) throws IOException {
 		
-		String shadowFill = HtmlColor.asHtml(getPlot().getShadowColor());
-		String shapeFill = HtmlColor.asHtml(getPlot().getShapeFillColor());
-		String shapeStroke = HtmlColor.asHtml(getPlot().getShapeLineColor());
+		String shadowFill = ColorUtil.asHtml(getPlot().getShadowColor());
+		String shapeFill = ColorUtil.asHtml(getPlot().getShapeFillColorProvider().getColor(node));
+		String shapeStroke = ColorUtil.asHtml(getPlot().getShapeLineColor());
 
 		outputStream.write(("<rect x=\"" + (upperLeft.getX() + 3) + "\" y=\"" + (upperLeft.getY() + 3) + "\" height=\"" 
 				+ TAB_HEIGHT + "\" width=\"" + (getDimension().getWidth() / 3.0) + "\" fill=\"" + shadowFill + "\" />").getBytes("UTF-8"));

@@ -6,7 +6,22 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Stroke;
 
+import com.electricmind.dependency.Node;
+
 public class Plot {
+	
+	class SimpleColorProvider implements ColorProvider {
+		Color color;
+		
+		SimpleColorProvider(Color color) {
+			this.color = color;
+		}
+		
+		@Override
+		public Color getColor(Node<?> node) {
+			return this.color;
+		}
+	}
 
 	private static final int FIFTY_PERCENT_TRANSPARENT = 128;
 	private static final Color FIFTY_PERCENT_TRANSPARENT_GRAY = 
@@ -21,7 +36,7 @@ public class Plot {
 	}
 	
 	private Color shadowColor = FIFTY_PERCENT_TRANSPARENT_GRAY;
-	private Color shapeFillColor = Color.WHITE;
+	private ColorProvider shapeFillColorProvider = new SimpleColorProvider(Color.WHITE);
 	private Color shapeLineColor = Color.BLACK;
 	private Color layerBackgroundColor = Color.WHITE;
 	private Color layerAlternatingColor = new Color(214, 239, 199);
@@ -46,12 +61,12 @@ public class Plot {
 		this.shapeLineColor = shapeLineColor;
 	}
 
-	public Color getShapeFillColor() {
-		return this.shapeFillColor;
+	public ColorProvider getShapeFillColorProvider() {
+		return this.shapeFillColorProvider;
 	}
 
 	public void setShapeFillColor(Color shapeFillColor) {
-		this.shapeFillColor = shapeFillColor;
+		this.shapeFillColorProvider = new SimpleColorProvider(shapeFillColor);
 	}
 
 	public Color getLayerBackgroundColor() {
@@ -100,5 +115,9 @@ public class Plot {
 
 	public void setUseWeights(boolean useWeights) {
 		this.useWeights = useWeights;
+	}
+
+	public void setShapeFillColorProvider(ColorProvider shapeFillColorProvider) {
+		this.shapeFillColorProvider = shapeFillColorProvider;
 	}
 }

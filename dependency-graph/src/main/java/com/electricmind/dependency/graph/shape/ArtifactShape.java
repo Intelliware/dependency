@@ -25,7 +25,7 @@ public class ArtifactShape<T> extends NodeShape<T> {
 			+ "style=\"fill:none;stroke:#000000;stroke-width:0.7;stroke-linecap:round;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1\" "
 			+ "d=\"m 9.2191888,7.2701619 -2.066052,5.8780631 m 3.2009262,-4.8014504 2.095151,2.0925764 -2.095151,2.097723 M 5.9891638,8.3467746 3.9887395,10.412875 5.9891638,12.537074 v 0\"/>";
 	private static String JAR_ARTIFACT_SHAPE = "<g>"
-			+ "<path style=\"fill:#ffffff;fill-rule:evenodd;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:0;stroke-dasharray:none\" d=\"m 11.945981,2.6898174 -0.01687,0.8509402 c 1.444873,0 2.608076,1.1632017 2.608076,2.6080755 V 17.374897 c 0,1.444874 -1.163203,2.608075 -2.608076,2.608075 H 3.8402971 c -1.4448739,0 -2.6080756,-1.163201 -2.6080756,-2.608075 V 6.1488331 c 0,-1.4448738 1.1632017,-2.6080755 2.6080756,-2.6080755 L 3.8398948,2.6711828\"/>"
+			+ "<path style=\"fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:0;stroke-dasharray:none\" d=\"m 11.945981,2.6898174 -0.01687,0.8509402 c 1.444873,0 2.608076,1.1632017 2.608076,2.6080755 V 17.374897 c 0,1.444874 -1.163203,2.608075 -2.608076,2.608075 H 3.8402971 c -1.4448739,0 -2.6080756,-1.163201 -2.6080756,-2.608075 V 6.1488331 c 0,-1.4448738 1.1632017,-2.6080755 2.6080756,-2.6080755 L 3.8398948,2.6711828\"/>"
 			+ "<rect style=\"fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.708036;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:0;stroke-dasharray:none\" width=\"10.439284\" height=\"1.5017917\" x=\"2.6650615\" y=\"0.35401788\" ry=\"0.18314534\"/>"
 			+ "</g>";
 	
