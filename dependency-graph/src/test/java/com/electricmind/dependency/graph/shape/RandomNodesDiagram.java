@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
-import org.apache.commons.lang.SystemUtils;
+import org.apache.commons.lang3.SystemUtils;
 
 import com.electricmind.dependency.DependencyManager;
 import com.electricmind.dependency.graph.Grapher;

@@ -1,10 +1,14 @@
 package com.electricmind.dependency.maven.pom;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import com.electricmind.dependency.maven.MavenArtifactName;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.MapSerializer;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -19,7 +23,12 @@ public class PomModel {
 	
 	@JacksonXmlElementWrapper(useWrapping = true, localName = "dependencies")
 	List<DependencyModel> dependencies;
+	
+	DependencyManagementModel dependencyManagement;
 
+	@JsonSerialize(keyUsing = MapSerializer.class)
+	Map<String, String> properties;
+	
 	public String getGroupId() {
 		if (this.groupId == null && this.parent != null) {
 			return this.parent.getGroupId();
@@ -82,5 +91,21 @@ public class PomModel {
 
 	public MavenArtifactName getArtifactName() {
 		return new MavenArtifactName(getGroupId(), getArtifactId(), getVersion(), getPackaging());
+	}
+
+	public DependencyManagementModel getDependencyManagement() {
+		return this.dependencyManagement;
+	}
+
+	public void setDependencyManagement(DependencyManagementModel dependencyManagement) {
+		this.dependencyManagement = dependencyManagement;
+	}
+
+	public Map<String, String> getProperties() {
+		return this.properties == null ? Collections.emptyMap() : this.properties;
+	}
+
+	public void setProperties(Map<String, String> properties) {
+		this.properties = properties;
 	}
 }

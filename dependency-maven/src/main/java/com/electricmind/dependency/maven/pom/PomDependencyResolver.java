@@ -10,10 +10,7 @@ import java.util.Map;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-import com.electricmind.dependency.Coupling;
 import com.electricmind.dependency.DependencyManager;
-import com.electricmind.dependency.Layer;
-import com.electricmind.dependency.Node;
 import com.electricmind.dependency.maven.MavenArtifactName;
 
 public class PomDependencyResolver {
@@ -73,60 +70,161 @@ public class PomDependencyResolver {
 		try (InputStream input = new FileInputStream(pomFile)) {
 			PomModel pom = this.marshaller.parsePom(input);
 			
-			return augmentWithVersions(processDependencies(pom, new DependencyManager<SimpleName>()));
+			findAllDependenciesAndResolveVersion(pom);
+			return createDependencyManager(pom);
 		}
 	}
 
-	private DependencyManager<MavenArtifactName> augmentWithVersions(
-			DependencyManager<SimpleName> dependencies) {
-		
-		DependencyManager<MavenArtifactName> result = new DependencyManager<>();
-		for (Layer<Node<SimpleName>> layer : dependencies.getNodeLayers()) {
-			for (Node<SimpleName> node : layer.getContents()) {
-				MavenArtifactName fullName = this.versionMap.get(node.getItem());
-				result.add(fullName);
-				
-				for (Coupling<SimpleName> coupling : node.getEfferentCouplings()) {
-					MavenArtifactName dependencyName = this.versionMap.get(coupling.getItem());
-					result.add(fullName, dependencyName, coupling.getWeight());
-				} 
-			}
-		} 
-		return result;
-	}
-
-	private DependencyManager<SimpleName> processDependencies(PomModel pom, DependencyManager<SimpleName> dependencies) throws IOException {
-		
-		SimpleName pomName = new SimpleName(pom.getGroupId(), pom.getArtifactId());
-		addDependencyVersion(pomName, pom.getArtifactName());
-		
-		if (pom.getParent() != null) {
-			processDependency(pomName, 
-					parsePom(this.resolver.resolvePom(pom.getParent().getGroupId(), pom.getParent().getArtifactId(), pom.getParent().getVersion())), 
-					dependencies);				
-		}
-		
-		for (DependencyModel dependency : pom.getDependencies()) {
-			if ((dependency.getScope() == null || "compile".equals(dependency.getScope()))
-					&& !Boolean.TRUE.equals(dependency.getOptional())) {
-				processDependency(pomName, 
-						parsePom(this.resolver.resolvePom(dependency.getGroupId(), dependency.getArtifactId(), dependency.getVersion())), 
-						dependencies);				
-			}
-		}
-		
+	private DependencyManager<MavenArtifactName> createDependencyManager(PomModel pom) throws IOException {
+		DependencyManager<MavenArtifactName> dependencies = new DependencyManager<>();
+		createDependencyManager(pom, dependencies);
 		return dependencies;
 	}
 
-	private void processDependency(SimpleName pomName, PomModel dependentPom,
-			DependencyManager<SimpleName> dependencies) throws IOException {
+	private void createDependencyManager(PomModel pom, DependencyManager<MavenArtifactName> dependencies) throws IOException {
+		if (pom.getParent() != null) {
+			MavenArtifactName parent = this.versionMap.get(new SimpleName(pom.getParent().getGroupId(), pom.getParent().getArtifactId()));
+			dependencies.add(pom.getArtifactName(), parent);
+			
+			PomModel parentPom = parsePom(this.resolver.resolvePom(parent.getGroupId(), parent.getArtifactId(), parent.getVersion()));
+			createDependencyManager(parentPom, dependencies);
+		}
+
+		for (DependencyModel dependency : pom.getDependencies()) {
+			if (isRequiredDependency(dependency)) {
+				MavenArtifactName dependencyName = this.versionMap.get(new SimpleName(dependency.getGroupId(), dependency.getArtifactId()));
+				if (dependencyName != null) {
+					dependencies.add(pom.getArtifactName(), dependencyName);
+					PomModel dependencyPom = parsePom(this.resolver.resolvePom(dependencyName.getGroupId(), dependencyName.getArtifactId(), dependencyName.getVersion()));
+					if (dependencyPom == null) {
+						System.out.println(dependencyName);
+					}
+					createDependencyManager(dependencyPom, dependencies);
+				}
+			}
+		}
+	}
+
+	private void findAllDependenciesAndResolveVersion(PomModel pom) throws IOException {
 		
+		SimpleName pomName = new SimpleName(pom.getGroupId(), pom.getArtifactId());
+		addDependencyVersion(pomName, pom.getArtifactName());
+		PomModel parentPom = null;
+		
+		if (pom.getParent() != null) {
+			parentPom = parsePom(this.resolver.resolvePom(pom.getParent().getGroupId(), pom.getParent().getArtifactId(), pom.getParent().getVersion()));
+			findAllDependenciesAndResolveVersion(pomName, parentPom);
+		}
+		
+		for (DependencyModel dependency : pom.getDependencies()) {
+			if (isRequiredDependency(dependency)) {
+				if (dependency.getVersion() == null && parentPom != null) {
+					dependency = resolveDependencyVersion(dependency, parentPom);
+				}
+				
+				if (dependency.getVersion() != null) {
+					if (isVariableReference(dependency.getVersion())) {
+						String resolved = resolveVariable(dependency.getVersion(), pom.getProperties(), parentPom);
+						DependencyModel model = new DependencyModel();
+						model.setGroupId(dependency.getGroupId());
+						model.setArtifactId(dependency.getArtifactId());
+						model.setVersion(resolved);
+						System.out.println("Need to resolve variable " + dependency.getVersion() + ": " + resolved);
+						dependency = model;
+					}
+					
+					findAllDependenciesAndResolveVersion(pomName, 
+							parsePom(this.resolver.resolvePom(dependency.getGroupId(), dependency.getArtifactId(), dependency.getVersion())));
+				} else {
+					System.out.println("Cannot resolve version number for " + dependency.getGroupId() + ":" + dependency.getArtifactId());
+				}
+			}
+		}
+	}
+
+	private String resolveVariable(String variable, Map<String, String> properties, PomModel parentPom) throws IOException {
+		String v = new Variable(variable).getName();
+		
+		String result = null;
+		Map<String, String> map = new HashMap<>(parentPom.getProperties());
+		map.putAll(properties);
+		PomModel ancestor = null;
+		
+		if (map.containsKey(v)) {
+			result = map.get(v);
+		} else if (parentPom.getParent() != null) {
+			ancestor = parsePom(this.resolver.resolvePom(parentPom.getParent().getGroupId(),parentPom.getParent().getArtifactId(), parentPom.getParent().getVersion()));
+			result = resolveVariable(variable, map, ancestor);
+		}
+		
+		while (isVariableReference(result)) {
+			String temp = new Variable(result).getName();
+			if (map.containsKey(temp)) {
+				result = map.get(temp);
+			} else {
+				if (ancestor != null) {
+					properties = findMoreProperties(ancestor, properties);
+					// only do this once
+					ancestor = null;
+				}
+				if (map.containsKey(temp)) {
+					result = map.get(temp);
+				} else {
+					break;
+				}
+			}
+		}
+		
+		return result;
+	}
+
+	private Map<String, String> findMoreProperties(PomModel pom, Map<String, String> properties) throws IOException {
+		Map<String, String> map = new HashMap<>(pom.getProperties());
+		if (pom.getParent() != null) {
+			PomModel parent = parsePom(this.resolver.resolvePom(pom.getParent().getGroupId(),pom.getParent().getArtifactId(), pom.getParent().getVersion()));
+			map.putAll(findMoreProperties(parent, map));
+		}
+		map.putAll(properties);
+		return map;
+	}
+
+	private boolean isVariableReference(String value) {
+		return value.startsWith("${") && value.endsWith("}");
+	}
+
+	private DependencyModel resolveDependencyVersion(DependencyModel dependency, PomModel pom) throws IOException {
+
+		DependencyModel parentDependency = null;
+		if (pom.getDependencyManagement() != null && pom.getDependencyManagement().getDependencies() != null) {
+			for (DependencyModel d : pom.getDependencyManagement().getDependencies()) {
+				if (d.getGroupId().equals(dependency.getGroupId()) && d.getArtifactId().equals(dependency.getArtifactId())) {
+					parentDependency = d;
+					break;
+				}
+			}
+		}
+		
+		if (parentDependency != null) {
+			return parentDependency;
+		} else if (pom.getParent() != null) {
+			PomModel parent = parsePom(this.resolver.resolvePom(pom.getParent().getGroupId(), pom.getParent().getArtifactId(), pom.getParent().getVersion()));
+			return resolveDependencyVersion(dependency, parent);
+		} else {
+			return dependency;
+		}
+	}
+
+	private boolean isRequiredDependency(DependencyModel dependency) {
+		return (dependency.getScope() == null || "compile".equals(dependency.getScope()))
+				&& !Boolean.TRUE.equals(dependency.getOptional());
+	}
+
+	private void findAllDependenciesAndResolveVersion(SimpleName pomName, PomModel dependentPom) throws IOException {
 		if (dependentPom != null) {
 			SimpleName parentName = new SimpleName(dependentPom.getGroupId(), dependentPom.getArtifactId());
 			addDependencyVersion(parentName, dependentPom.getArtifactName());
-			dependencies.add(pomName, parentName);
 
-			processDependencies(dependentPom, dependencies);
+			findAllDependenciesAndResolveVersion(dependentPom);
 		}
 	}
 
