@@ -5,13 +5,12 @@ import java.awt.Graphics2D;
 import java.awt.geom.Point2D;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import com.electricmind.dependency.Describer;
 import com.electricmind.dependency.Node;
 import com.electricmind.dependency.graph.TextLabel;
 import com.electricmind.dependency.graph.TextLabelOption;
@@ -79,9 +78,9 @@ public class MavenArtifactLabelStrategy extends TextLabelStrategy implements Ste
 	@Override
 	public String getStereotype(Node<?> node) {
 		try {
-			String packaging = BeanUtils.getProperty(node.getItem(), "packaging");
+			String packaging = new Describer().getPropertyValue(node.getItem(), "packaging");
 			return StringUtils.isEmpty(packaging) ? "artifact" : packaging;
-		} catch (IllegalAccessException|InvocationTargetException|NoSuchMethodException e) {
+		} catch (RuntimeException e) {
 			e.printStackTrace();
 			return "artifact";
 		}

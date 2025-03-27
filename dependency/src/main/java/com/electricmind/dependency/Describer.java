@@ -1,9 +1,11 @@
 package com.electricmind.dependency;
 
+import java.beans.BeanInfo;
+import java.beans.IntrospectionException;
+import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
-
-import org.apache.commons.beanutils.PropertyUtils;
+import java.util.Arrays;
 
 public class Describer {
 
@@ -13,35 +15,38 @@ public class Describer {
 		} else if (o instanceof String) {
 			return (String) o;
 		} else if (hasNameProperty(o)) {
-			return getName(o);
+			return getPropertyValue(o, "name");
 		} else {
 			return o.toString();
 		}
 	}
 
-	private String getName(Object o) {
+	public String getPropertyValue(Object o, String propertyName) {
 		try {
-			return (String) PropertyUtils.getSimpleProperty(o, "name");
-		} catch (IllegalAccessException e) {
-			throw new RuntimeException(e);
-		} catch (InvocationTargetException e) {
-			throw new RuntimeException(e);
-		} catch (NoSuchMethodException e) {
+			BeanInfo bean = Introspector.getBeanInfo(o.getClass());
+			PropertyDescriptor property = Arrays.asList(bean.getPropertyDescriptors())
+					.stream()
+					.filter(p -> propertyName.equals(p.getName()))
+					.findFirst().get();
+			return (String) property.getReadMethod().invoke(o);
+		} catch (IllegalAccessException|InvocationTargetException|IntrospectionException e) {
 			throw new RuntimeException(e);
 		}
 	}
 
 	private boolean hasNameProperty(Object o) {
+		return hasProperty(o, "name");
+	}
+	
+	private boolean hasProperty(Object o, String propertyName) {
 		try {
-			PropertyDescriptor descriptor = PropertyUtils.getPropertyDescriptor(o, "name");
-			return descriptor != null && String.class.equals(descriptor.getPropertyType());
-		} catch (IllegalAccessException e) {
-			return false;
-		} catch (InvocationTargetException e) {
-			return false;
-		} catch (NoSuchMethodException e) {
+			BeanInfo bean = Introspector.getBeanInfo(o.getClass());
+			return Arrays.asList(bean.getPropertyDescriptors())
+					.stream()
+					.filter(p -> propertyName.equals(p.getName()))
+					.count() > 0;
+		} catch (IntrospectionException e) {
 			return false;
 		}
 	}
-
 }
