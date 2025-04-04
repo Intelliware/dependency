@@ -81,7 +81,6 @@ public class MavenArtifactLabelStrategy extends TextLabelStrategy implements Ste
 			String packaging = new Describer().getPropertyValue(node.getItem(), "packaging");
 			return StringUtils.isEmpty(packaging) ? "artifact" : packaging;
 		} catch (RuntimeException e) {
-			e.printStackTrace();
 			return "artifact";
 		}
 	}
