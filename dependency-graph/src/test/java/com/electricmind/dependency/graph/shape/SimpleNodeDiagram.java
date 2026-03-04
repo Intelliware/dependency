@@ -2,22 +2,31 @@ package com.electricmind.dependency.graph.shape;
 
 import java.awt.Color;
 import java.awt.Dimension;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
-
-import org.apache.commons.lang3.SystemUtils;
 
 import com.electricmind.dependency.DependencyManager;
 import com.electricmind.dependency.graph.Grapher;
 
-public class SimpleNodeDiagram {
+public class SimpleNodeDiagram extends DependencyGraphTester<String> {
 	public static void main(String[] args) throws Exception {
 		new SimpleNodeDiagram().process();
 	}
 
-	private void process() throws IOException {
+	@Override
+	public Grapher<String> createGrapher(DependencyManager<String> manager) {
+		Grapher<String> grapher = new Grapher<String>(manager);
+		grapher.getPlot().setShapeFillColor(new Color(216, 223, 238));
+		grapher.getShape().setDimension(new Dimension(40, 40));
+		return grapher;
+	}
+
+	@Override
+	public void graphAll(Grapher<String> grapher) throws IOException {
+		super.graphToPng(grapher, 500, 500);
+	}
+
+	@Override
+	public DependencyManager<String> createManager() {
 		DependencyManager<String> manager = new DependencyManager<String>();
 		manager.add("1", "13");
 		manager.add("1", "4");
@@ -51,17 +60,6 @@ public class SimpleNodeDiagram {
 		manager.add("19", "22");
 		manager.add("21", "23");
 		manager.add("22", "23");
-
-		File file = new File(SystemUtils.JAVA_IO_TMPDIR, "SimpleNodeDiagram.png");
-		System.out.println(file.getAbsolutePath());
-		OutputStream output = new FileOutputStream(file);
-		try {
-			Grapher<String> grapher = new Grapher<String>(manager);
-			grapher.getPlot().setShapeFillColor(new Color(216, 223, 238));
-			grapher.getShape().setDimension(new Dimension(40, 40));
-			grapher.createPng(output, 500, 500);
-		} finally {
-			output.close();
-		}
+		return manager;
 	}
 }

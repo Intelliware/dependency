@@ -1,36 +1,38 @@
 package com.electricmind.dependency.graph.shape;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
-
-import org.apache.commons.lang3.SystemUtils;
 
 import com.electricmind.dependency.DependencyManager;
 import com.electricmind.dependency.graph.Grapher;
 
-public class SimplePackageGraph {
-	
+public class SimplePackageGraph extends DependencyGraphTester<String> {
+
 	public static void main(String[] args) throws Exception {
 		new SimplePackageGraph().process();
 	}
 
-	private void process() throws FileNotFoundException, IOException {
+	@Override
+	public void graphToPng(Grapher<String> grapher) throws IOException {
+		graphToPng(grapher, 500, 500);
+	}
+
+	@Override
+	public Grapher<String> createGrapher(DependencyManager<String> manager) {
+		Grapher<String> grapher = new Grapher<String>(manager);
+		grapher.setShape(new PackageShape<String>());
+		return grapher;
+	}
+
+	@Override
+	public DependencyManager<String> createManager() {
 		DependencyManager<String> manager = new DependencyManager<String>();
 		manager.add("ca.intelliware.hl7.generator.xsd", "ca.intelliware.hl7.generator");
 		manager.add("ca.intelliware.hl7.referral");
+		return manager;
+	}
 
-		File file = new File(SystemUtils.JAVA_IO_TMPDIR, "SimplePackageGraph.png");
-		System.out.println(file.getAbsolutePath());
-		OutputStream output = new FileOutputStream(file);
-		try {
-			Grapher<String> grapher = new Grapher<String>(manager);
-			grapher.setShape(new PackageShape<String>());
-			grapher.createPng(output, 500, 500);
-		} finally {
-			output.close();
-		}
+	@Override
+	public String getFileNameBase() {
+		return "SimplePackageGraph";
 	}
 }

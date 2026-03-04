@@ -1,27 +1,23 @@
 package com.electricmind.dependency.graph.shape;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-
-import org.apache.commons.lang3.SystemUtils;
-
 import com.electricmind.dependency.DependencyManager;
 import com.electricmind.dependency.graph.Grapher;
 
-public class ComplicatedPackageGraphCrossings {
+public class ComplicatedPackageGraphCrossings extends DependencyGraphTester<String> {
 
 	public static void main(String[] args) throws Exception {
 		new ComplicatedPackageGraphCrossings().process();
 	}
 
-	/**
-	 * @throws FileNotFoundException
-	 * @throws IOException
-	 */
-	private void process() throws FileNotFoundException, IOException {
+	@Override
+	public Grapher<String> createGrapher(DependencyManager<String> manager) {
+		Grapher<String> grapher = new Grapher<String>(manager);
+		grapher.setShape(new PackageShape<String>());
+		return grapher;
+	}
+
+	@Override
+	public DependencyManager<String> createManager() {
 		DependencyManager<String> manager = new DependencyManager<String>();
 		manager.add("ca.intelliware.ereferral.converter");
 		manager.add("ca.intelliware.ereferral.util.security");
@@ -273,25 +269,6 @@ public class ComplicatedPackageGraphCrossings {
 
 		manager.add("ca.intelliware.ereferral.webservice.client",
 				"ca.intelliware.ereferral.soap");
-
-		File file = new File(SystemUtils.JAVA_IO_TMPDIR, "ComplicatedPackageGraphCrossings.png");
-		System.out.println(file.getAbsolutePath());
-		OutputStream output = new FileOutputStream(file);
-		try {
-			Grapher<String> grapher = new Grapher<String>(manager);
-			grapher.setShape(new PackageShape<String>());
-			grapher.createPng(output);
-		} finally {
-			output.close();
-		}
-		
-		File svg = new File(SystemUtils.JAVA_IO_TMPDIR, "ComplicatedPackageGraphCrossings.svg");
-		System.out.println(svg.getAbsolutePath());
-		try (OutputStream outputSvg = new FileOutputStream(svg)) {
-			Grapher<String> grapher = new Grapher<String>(manager);
-			grapher.setShape(new PackageShape<String>());
-			grapher.createSvg(outputSvg);
-		}
-
+		return manager;
 	}
 }
