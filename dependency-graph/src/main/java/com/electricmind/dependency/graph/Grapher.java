@@ -334,14 +334,18 @@ public class Grapher<T> {
 			if (!vertex.isDummy()) {
 				Node<?> node = ((Graph.BasicVertex) vertex).getNode();
 				Graphics2D g = (Graphics2D) graphics.create();
-				double x = this.coordinateSystem.getLeftX(vertex);
-				double y = this.coordinateSystem.getTopY(vertex);
-				g.translate(x, y);
-				this.locations.put(node.getItem(),
-						new Rectangle2D.Double(x, y,
-								this.shape.getWidth(),
-								this.shape.getHeight()));
-				drawNode(g, node);
+				try {
+					double x = this.coordinateSystem.getLeftX(vertex);
+					double y = this.coordinateSystem.getTopY(vertex);
+					g.translate(x, y);
+					this.locations.put(node.getItem(),
+							new Rectangle2D.Double(x, y,
+									this.shape.getWidth(),
+									this.shape.getHeight()));
+					drawNode(g, node);
+				} finally {
+					g.dispose();
+				}
 			}
 		}
 	}
@@ -435,8 +439,11 @@ public class Grapher<T> {
 	private BufferedImage createBufferedImage(final Dimension dimension, Drawer drawer) {
 		BufferedImage image = new BufferedImage(dimension.width, dimension.height, BufferedImage.TYPE_INT_ARGB);
 		Graphics2D g2 = image.createGraphics();
-		drawer.drawGraph(g2);
-		g2.dispose();
+		try {
+			drawer.drawGraph(g2);
+		} finally {
+			g2.dispose();
+		}
 		return image;
 	}
 
