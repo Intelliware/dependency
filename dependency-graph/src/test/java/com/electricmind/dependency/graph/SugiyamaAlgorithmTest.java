@@ -30,6 +30,14 @@ public class SugiyamaAlgorithmTest {
 		}
 	}
 
+	@Test
+	public void testEmptyLayout() throws Exception {
+		DependencyManager<String> manager = new DependencyManager<>();
+		Graph graph = new SugiyamaAlgorithm().apply(manager);
+		assertNotNull("graph", graph);
+		assertEquals("number of layers", 0, graph.getLayers().size());
+	}
+
 	private DependencyManager<String> createDependencies() {
 		DependencyManager<String> manager = new DependencyManager<String>();
 		manager.add("pebbles", "fred");

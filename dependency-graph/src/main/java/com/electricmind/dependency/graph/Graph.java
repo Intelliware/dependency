@@ -47,15 +47,15 @@ class Graph implements SugiyamaGraph {
 				return false;
 			} else if (vertex instanceof BasicVertex) {
 				Object object = ((BasicVertex) vertex).node.getItem();
-				return this.node.getAfferentCouplings().stream().map(c -> c.getItem()).collect(Collectors.toList()).contains(object) 
+				return this.node.getAfferentCouplings().stream().map(c -> c.getItem()).collect(Collectors.toList()).contains(object)
 						|| this.node.getEfferentCouplings().stream().map(c -> c.getItem()).collect(Collectors.toList()).contains(object);
 			} else {
 				return vertex.isNeighbour(this);
 			}
 		}
-		
+
 		boolean isBidirectionalWith(BasicVertex vertex) {
-			return this.node.getAfferentCouplings().stream().map(c -> c.getItem()).collect(Collectors.toList()).contains(vertex.node.getItem()) 
+			return this.node.getAfferentCouplings().stream().map(c -> c.getItem()).collect(Collectors.toList()).contains(vertex.node.getItem())
 					&& this.node.getEfferentCouplings().stream().map(c -> c.getItem()).collect(Collectors.toList()).contains(vertex.node.getItem());
 		}
 
@@ -97,7 +97,7 @@ class Graph implements SugiyamaGraph {
 				map.put(node.getItem(), vertex);
 			}
 		}
-		
+
 		for (Layer<Node<T>> layer : nodeLayers) {
 			for (Node<T> node : layer.getContents()) {
 				Vertex vertex = map.get(node.getItem());
@@ -127,7 +127,7 @@ class Graph implements SugiyamaGraph {
 
 	private static void createDummyVertices(int currentLayer, Vertex top,
 			Vertex bottom, Graph graph) {
-		int sign = getSign(top.getLayer() - bottom.getLayer());
+		int sign = Integer.signum(top.getLayer() - bottom.getLayer());
 		DummyVertex dependent = null;
 		for (int l = bottom.getLayer() + sign; l * sign < currentLayer * sign; l += sign) {
 			DummyVertex upper = new DummyVertex(l);
@@ -141,16 +141,6 @@ class Graph implements SugiyamaGraph {
 			dependent = upper;
 		}
 		dependent.setUpper(top);
-	}
-
-	private static int getSign(int value) {
-		if (value < 0) {
-			return -1;
-		} else if (value > 0) {
-			return 1;
-		} else {
-			return 0;
-		}
 	}
 
 	boolean hasChanged() {

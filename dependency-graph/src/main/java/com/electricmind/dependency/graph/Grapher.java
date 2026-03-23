@@ -6,6 +6,7 @@ import static com.electricmind.dependency.graph.CoordinateSystem.WIDTH_SCALE_FAC
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
@@ -125,14 +126,12 @@ public class Grapher<T> {
 
 	private double calculateScale(Rectangle2D rectangle) {
 		Dimension dimension = getPreferredDimension();
-		if (dimension.getHeight() / rectangle.getHeight() > dimension.getWidth() / rectangle.getWidth()) {
-			return dimension.getHeight() / rectangle.getHeight();
-		} else {
-			return dimension.getWidth() / rectangle.getWidth();
-		}
+		double heightRatio = dimension.getHeight() / rectangle.getHeight();
+		double widthRatio = dimension.getWidth() / rectangle.getWidth();
+		return Math.max(heightRatio, widthRatio);
 	}
 
-	private Dimension getPreferredDimension() {
+	public Dimension getPreferredDimension() {
 		List<Layer<Node<T>>> layers = this.dependencyManager.getNodeLayers();
 		double height = layers.size() * getLayerBandHeight();
 		double shapeWidth = this.shape.getWidth();
@@ -231,7 +230,6 @@ public class Grapher<T> {
 				Arrow arrow = new Arrow(Arrays.asList(from, to));
 				arrow = arrow.clipEnd(getBounds(node.getItem()));
 				arrow = arrow.clipStart(getBounds(object));
-				System.out.println(arrow);
 				this.arrowShape.drawArrow(graphics, arrow);
 			}
 		} else if (!vertex.isDummy() && dependency.isDummy()) {
@@ -378,9 +376,10 @@ public class Grapher<T> {
 	private void drawLayerBars(Graphics2D graphics, Rectangle2D r) {
 		double height = getLayerBandHeight();
 		boolean alternate = false;
+		Rectangle clipBounds = graphics.getClipBounds();
 		for (double i = r.getHeight()-height; i > -height; i -= (height)) {
 			graphics.setPaint(alternate ? this.plot.getLayerBackgroundColor() : this.plot.getLayerAlternatingColor());
-			graphics.fill(new Rectangle2D.Double(r.getX(), i, r.getWidth(), height));
+			graphics.fill(new Rectangle2D.Double(clipBounds.getX(), i, clipBounds.getWidth(), height));
 			alternate = !alternate;
 		}
 	}

@@ -35,7 +35,7 @@ import com.electricmind.dependency.LayeredGraph;
  * @author BC Holmes
  */
 class SugiyamaAlgorithm {
-	
+
 	private Log log = LogFactory.getLog(getClass());
 
 	public Graph apply(DependencyManager<?> dependencyManager) {
@@ -49,8 +49,8 @@ class SugiyamaAlgorithm {
 
 		stopWatch.stop();
 		LayeredGraph<?> layeredGraph = dependencyManager.getLayeredGraph();
-		this.log.info("Graph with " + layeredGraph.getNodes().size() + " nodes and " 
-				+ layeredGraph.getLayers().size() + " layers processed in " 
+		this.log.info("Graph with " + layeredGraph.getNodes().size() + " nodes and "
+				+ layeredGraph.getLayers().size() + " layers processed in "
 				+ stopWatch.getDuration() + " ms");
 		return graph;
 	}
@@ -105,7 +105,9 @@ class SugiyamaAlgorithm {
 		StopWatch stopWatch = new StopWatch();
 		stopWatch.start();
 		GraphLayer layer = graph.getTop();
-		layer.assignArbitraryOrder();
+		if (layer != null) {
+			layer.assignArbitraryOrder();
+		}
 
 		do {
 			graph.resetChanges();

@@ -14,16 +14,16 @@ import com.electricmind.dependency.DependencyManager;
 import com.electricmind.dependency.maven.MavenArtifactName;
 
 public class PomDependencyResolver {
-	
+
 	public static class SimpleName {
 		String groupId;
 		String artifactId;
-		
+
 		public SimpleName(String groupId, String artifactId) {
 			this.groupId = groupId;
 			this.artifactId = artifactId;
 		}
-		
+
 		public String getGroupId() {
 			return this.groupId;
 		}
@@ -47,7 +47,7 @@ public class PomDependencyResolver {
 						.isEquals();
 			}
 		}
-		
+
 		@Override
 		public int hashCode() {
 			return new HashCodeBuilder()
@@ -55,7 +55,7 @@ public class PomDependencyResolver {
 					.append(this.artifactId)
 					.toHashCode();
 		}
-		
+
 		@Override
 		public String toString() {
 			return this.groupId + ":" + this.artifactId;
@@ -65,11 +65,11 @@ public class PomDependencyResolver {
 	PomMarshaller marshaller = new PomMarshaller();
 	PomResolver resolver = new MavenM2PomResolver();
 	Map<SimpleName, MavenArtifactName> versionMap = new HashMap<>();
-	
+
 	public DependencyManager<MavenArtifactName> findDependencies(File pomFile) throws IOException {
 		try (InputStream input = new FileInputStream(pomFile)) {
 			PomModel pom = this.marshaller.parsePom(input);
-			
+
 			findAllDependenciesAndResolveVersion(pom);
 			return createDependencyManager(pom);
 		}
@@ -85,7 +85,7 @@ public class PomDependencyResolver {
 		if (pom.getParent() != null) {
 			MavenArtifactName parent = this.versionMap.get(new SimpleName(pom.getParent().getGroupId(), pom.getParent().getArtifactId()));
 			dependencies.add(pom.getArtifactName(), parent);
-			
+
 			PomModel parentPom = parsePom(this.resolver.resolvePom(parent.getGroupId(), parent.getArtifactId(), parent.getVersion()));
 			createDependencyManager(parentPom, dependencies);
 		}
@@ -106,22 +106,22 @@ public class PomDependencyResolver {
 	}
 
 	private void findAllDependenciesAndResolveVersion(PomModel pom) throws IOException {
-		
+
 		SimpleName pomName = new SimpleName(pom.getGroupId(), pom.getArtifactId());
 		addDependencyVersion(pomName, pom.getArtifactName());
 		PomModel parentPom = null;
-		
+
 		if (pom.getParent() != null) {
 			parentPom = parsePom(this.resolver.resolvePom(pom.getParent().getGroupId(), pom.getParent().getArtifactId(), pom.getParent().getVersion()));
 			findAllDependenciesAndResolveVersion(pomName, parentPom);
 		}
-		
+
 		for (DependencyModel dependency : pom.getDependencies()) {
 			if (isRequiredDependency(dependency)) {
 				if (dependency.getVersion() == null && parentPom != null) {
 					dependency = resolveDependencyVersion(dependency, parentPom);
 				}
-				
+
 				if (dependency.getVersion() != null) {
 					if (isVariableReference(dependency.getVersion())) {
 						String resolved = resolveVariable(dependency.getVersion(), pom.getProperties(), parentPom);
@@ -129,11 +129,10 @@ public class PomDependencyResolver {
 						model.setGroupId(dependency.getGroupId());
 						model.setArtifactId(dependency.getArtifactId());
 						model.setVersion(resolved);
-						System.out.println("Need to resolve variable " + dependency.getVersion() + ": " + resolved);
 						dependency = model;
 					}
-					
-					findAllDependenciesAndResolveVersion(pomName, 
+
+					findAllDependenciesAndResolveVersion(pomName,
 							parsePom(this.resolver.resolvePom(dependency.getGroupId(), dependency.getArtifactId(), dependency.getVersion())));
 				} else {
 					System.out.println("Cannot resolve version number for " + dependency.getGroupId() + ":" + dependency.getArtifactId());
@@ -144,19 +143,19 @@ public class PomDependencyResolver {
 
 	private String resolveVariable(String variable, Map<String, String> properties, PomModel parentPom) throws IOException {
 		String v = new Variable(variable).getName();
-		
+
 		String result = null;
 		Map<String, String> map = new HashMap<>(parentPom.getProperties());
 		map.putAll(properties);
 		PomModel ancestor = null;
-		
+
 		if (map.containsKey(v)) {
 			result = map.get(v);
 		} else if (parentPom.getParent() != null) {
 			ancestor = parsePom(this.resolver.resolvePom(parentPom.getParent().getGroupId(),parentPom.getParent().getArtifactId(), parentPom.getParent().getVersion()));
 			result = resolveVariable(variable, map, ancestor);
 		}
-		
+
 		while (isVariableReference(result)) {
 			String temp = new Variable(result).getName();
 			if (map.containsKey(temp)) {
@@ -174,7 +173,7 @@ public class PomDependencyResolver {
 				}
 			}
 		}
-		
+
 		return result;
 	}
 
@@ -203,7 +202,7 @@ public class PomDependencyResolver {
 				}
 			}
 		}
-		
+
 		if (parentDependency != null) {
 			return parentDependency;
 		} else if (pom.getParent() != null) {
